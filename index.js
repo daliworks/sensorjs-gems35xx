@@ -3,50 +3,67 @@
 var logger = require('log4js').getLogger('Sensor');
 
 function initDrivers() {
-  var gems35xxSensor;
+  var gems35xxBaseSensor;
+  var gems35xxFeederSensor;
 
   try {
-    gems35xxSensor = require('./driver/gems35xxSensor');
+    gems35xxBaseSensor = require('./driver/gems35xxBaseSensor');
   } catch(e) {
-    logger.error('Cannot load ./driver/gems35xxSensor', e);
+    logger.error('Cannot load ./driver/gems35xxBaseSensor', e);
+  }
+
+  try {
+    gems35xxFeederSensor = require('./driver/gems35xxFeederSensor');
+  } catch(e) {
+    logger.error('Cannot load ./driver/gems35xxFeederSensor', e);
   }
 
   return {
-    gems35xxSensor: gems35xxSensor
+    gems35xxBaseSensor: gems35xxBaseSensor,
+    gems35xxFeederSensor: gems35xxFeederSensor
   };
 }
 
 function initNetworks() {
-  var modbusTcpNteksys;
+  var network;
 
   try {
-    modbusTcpNteksys = require('./network/modbus-tcp-gems35xx');
+    network = require('./network/gems35xx-modbus-tcp');
   } catch (e) {
-    logger.error('Cannot load ./network/modbus-tcp-gems35xx', e);
+    logger.error('Cannot load ./network/gems35xx-modbus-tcp', e);
   }
 
   return {
-    'modbus-tcp-gems35xx': modbusTcpNteksys
+    'gems35xx-base-modbus-tcp': network,
+    'gems35xx-feeder-modbus-tcp': network
   };
 }
 
 module.exports = {
-  networks: ['modbus-tcp-gems35xx'],
+  networks: ['gems35xx-base-modbus-tcp', 'gems35xx-feeder-modbus-tcp'],
   drivers: {
-    gems35xxSensor: [
-      'gems35xxVoltage',
-      'gems35xxCurrent',
-      'gems35xxCurrentMilli',
-      'gems35xxImbalance',
-      'gems35xxTimeDuration',
-      'gems35xxElectricEnergy',
-      'gems35xxElectricActivePower',
-      'gems35xxElectricReactivePower',
+    gems35xxBaseSensor: [
+      'gems35xxTemperature',
       'gems35xxFrequency',
+      'gems35xxVoltage',
+      'gems35xxVoltageUnbalance'
+    ],
+    gems35xxFeederSensor: [
+      'gems35xxFeederType',
+      'gems35xxCurrent',
+      'gems35xxPower',
       'gems35xxPowerFactor',
-      'gems35xxCount'
+      'gems35xxLeakageCurrent',
+      'gems35xxVAR',
+      'gems35xxVA',
+      'gems35xxPFAverage',
+      'gems35xxCurrentUnbalance',
+      'gems35xxTHDAverage',
+      'gems35xxPowerTHD',
+      'gems35xxPhase'
     ]
   },
   initNetworks: initNetworks,
   initDrivers: initDrivers
 };
+

@@ -22,14 +22,12 @@ function isInvalid() {
 // cb: function (err, value)
 function readValue(task, done) {
   var client = task.client;
-  var registerAddress = task.registerAddress;
-  var bufferReadFunc = task.bufferReadFunc;
   var cb = task.cb;
-  var from = registerAddress - 40001;
-  var to = from + 1;
+  var from = task.registerAddress - 30000;
+  var to = from + task.registerCount;
 
-  logger.debug('readValue() registerAddress:', registerAddress);
-  client.readHoldingRegisters(MODBUS_UNIT_ID, from, to, function readCb(err, data) {
+  logger.debug('readValue() registerAddress:', task.registerAddress);
+  client.readInputRegisters(MODBUS_UNIT_ID, from, to, function readCb(err, data) {
     var buffer = new Buffer(4);
     var value;
     var badDataErr;
@@ -60,9 +58,9 @@ function readValue(task, done) {
 
     logger.debug('data:', data);
 
-    value = buffer[bufferReadFunc](0) || 0;
+    value = buffer[task.bufferReadFunc](0) || 0;
 
-    logger.debug('Converted value:', value, registerAddress);
+    logger.debug('Converted value:', value, task.registerAddress);
 
     if (cb) {
       cb(null, value);
@@ -72,7 +70,7 @@ function readValue(task, done) {
   });
 }
 
-function Gems5200 () {
+function Gems35xx () {
   var self = this;
 
   EventEmitter.call(self);
@@ -87,12 +85,12 @@ function Gems5200 () {
   };
 }
 
-util.inherits(Gems5200, EventEmitter);
+util.inherits(Gems35xx, EventEmitter);
 
 // address: {IP}:{port}
 // registerInfo: [{register address}, {buffer read function}]
 // cb: function (err, value)
-Gems5200.prototype.getValue = function (address, regObj, cb) {
+Gems35xx.prototype.getValue = function (address, registerAddressOffset, regObj, cb) {
   var self = this;
   var registerAddress;
   var bufferReadFunc;
@@ -113,15 +111,15 @@ Gems5200.prototype.getValue = function (address, regObj, cb) {
   if (!isValidAddress(address)) {
     return cb && cb(new Error('Bad device address:', address));
   }
-  */
-
-  registerAddress = regObj[0];
+*/
+  registerAddress = registerAddressOffset + regObj[0];
   bufferReadFunc = regObj[1];
   addressTokens = address.split(':');
   deviceAddress = addressTokens[0];
   devicePort = addressTokens[1];
   callbackArgs = {
     registerAddress: registerAddress,
+    registerCount: 1,
     bufferReadFunc: bufferReadFunc,
     cb: cb
   };
@@ -135,7 +133,7 @@ Gems5200.prototype.getValue = function (address, regObj, cb) {
         return;
       }
 
-      logger.debug('pushCB done:', callbackArgs.register);
+      logger.debug('pushCB done:', callbackArgs.registerAddress);
       return;
     });
     //readValue(self.clients[address], registerAddress, bufferReadFunc, cb);
@@ -205,4 +203,4 @@ Gems5200.prototype.getValue = function (address, regObj, cb) {
   }
 };
 
-module.exports = new Gems5200();
+module.exports = new Gems35xx();
