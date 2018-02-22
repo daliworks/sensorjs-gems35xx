@@ -12,6 +12,8 @@ var logger = require('./index').Sensor.getLogger('Sensor');
 var MODBUS_UNIT_ID = 1;
 var RETRY_OPEN_INTERVAL = 3000; // 3sec
 
+var gems35xxList = [];
+
 function isInvalid() {
   return false;
 }
@@ -70,11 +72,13 @@ function readValue(task, done) {
   });
 }
 
-function Gems35xx () {
+function Gems35xx (address, port) {
   var self = this;
 
   EventEmitter.call(self);
 
+  self.address = address;
+  self.port    = port;
   self.sockets = [];
   self.clients = [];
   self.callbacks = [];
@@ -86,6 +90,31 @@ function Gems35xx () {
 }
 
 util.inherits(Gems35xx, EventEmitter);
+
+function  Gems35xxCreate(address, port) {
+  var gems35xx;
+
+  gems35xx = Gems35xxGet(address, port);
+  if (gems35xx == undefined) {
+    gems35xx = Gems35xx(address, port) ;
+    gems35xxList.push(gems35xx);
+  }
+
+  return  gems35xx;
+}
+
+function  Gems35xxGet(address, port) {
+  var i;
+  var gems35xx;
+
+  for(i = 0 ; i < gems35xxList.length ; i++) {
+    if ((gems35xxList[i].address == address) && (gems35xxList[i].port == port)) {
+      return  gems35xxList[i];
+    }
+  }
+
+  return  undefined;
+}
 
 // address: {IP}:{port}
 // registerInfo: [{register address}, {buffer read function}]
@@ -203,4 +232,7 @@ Gems35xx.prototype.getValue = function (address, registerAddressOffset, regObj, 
   }
 };
 
-module.exports = new Gems35xx();
+module.exports = {
+  create: Gems35xxCreate,
+  get:  Gems35xxGet
+};
