@@ -11,12 +11,9 @@ var logger = require('./index').Sensor.getLogger('Sensor');
 
 var MODBUS_UNIT_ID = 1;
 var RETRY_OPEN_INTERVAL = 3000; // 3sec
+var GEMS35XX_REGISTER_UPDATE_INTERVAL = 10000;
 
 var gems35xxList = [];
-
-function isInvalid() {
-  return false;
-}
 
 // client: modbus client
 // registerAddress: register address from 40000
@@ -24,7 +21,7 @@ function isInvalid() {
 // cb: function (err, value)
 function readValue(task, done) {
   var client = task.client;
-  var cb = task.cb;
+  var cb = task.readCb;
   var from = task.registerAddress - 30000;
   var to = from + task.registerCount;
 
@@ -55,17 +52,8 @@ function readValue(task, done) {
       return done && done(badDataErr);
     }
 
-    data[0].copy(buffer, 0);
-    data[1].copy(buffer, 2);
-
-    logger.debug('data:', data);
-
-    value = buffer[task.bufferReadFunc](0) || 0;
-
-    logger.debug('Converted value:', value, task.registerAddress);
-
     if (cb) {
-      cb(null, value);
+      cb(null, data);
     }
 
     return done && done();
@@ -75,18 +63,19 @@ function readValue(task, done) {
 function Gems35xx (address, port) {
   var self = this;
 
-  EventEmitter.call(self);
-
+  self.interval = GEMS35XX_REGISTER_UPDATE_INTERVAL;
+  self.intervalHandler = undefined;
   self.address = address;
   self.port    = port;
-  self.sockets = [];
-  self.clients = [];
-  self.callbacks = [];
-  self.connecting = false;
-  self.q = async.queue(readValue);
-  self.q.drain = function () {
+  self.children = [];
+  self.queue = async.queue(readValue);
+  self.queue.drain = function () {
     logger.debug('All the tasks have been done.');
   };
+
+  self.isRun = false;
+
+  EventEmitter.call(self);
 }
 
 util.inherits(Gems35xx, EventEmitter);
@@ -96,8 +85,35 @@ function  Gems35xxCreate(address, port) {
 
   gems35xx = Gems35xxGet(address, port);
   if (gems35xx == undefined) {
-    gems35xx = Gems35xx(address, port) ;
+    gems35xx = new Gems35xx(address, port) ;
     gems35xxList.push(gems35xx);
+
+    logger.debug('Trying connection:', address);
+    gems35xx.client = new modbus.Client();
+    gems35xx.socket = net.connect(port, address, function onConnect() {
+      logger.debug('Connected:', address);
+    });
+
+    gems35xx.client.writer().pipe(gems35xx.socket);
+    gems35xx.socket.pipe(gems35xx.client.reader());
+
+    gems35xx.socket.on('close', function onClose() {
+      gems35xx.socket = undefined;
+      gems35xx.client = undefined;
+
+      gems35xx.queue.kill();
+
+      logger.error('Modbus-tcp connection closed: (%s:%s)', address, port);
+    });
+
+    gems35xx.socket.on('error', function onError(err) {
+      gems35xx.socket = undefined;
+      gems35xx.client = undefined;
+
+      gems35xx.queue.kill();
+
+      logger.error('Modbus-tcp connection error:', err);
+    });
   }
 
   return  gems35xx;
@@ -116,121 +132,83 @@ function  Gems35xxGet(address, port) {
   return  undefined;
 }
 
-// address: {IP}:{port}
-// registerInfo: [{register address}, {buffer read function}]
-// cb: function (err, value)
-Gems35xx.prototype.getValue = function (address, registerAddressOffset, regObj, cb) {
+Gems35xx.prototype.addChild = function(child) {
   var self = this;
-  var registerAddress;
-  var bufferReadFunc;
-  var addressTokens;
-  var deviceAddress;
-  var devicePort;
-  var client;
-  var socket;
-  var callbackArgs = {};
 
-  logger.debug('Called getValue():', address, regObj);
+  self.children.push(child);
+}
 
-  if (!regObj) {
-    return cb && cb(new Error('No register information'));
-  }
+Gems35xx.prototype.getChild = function (id) {
+  var self = this;
+  var i;
 
-  /*
-  if (!isValidAddress(address)) {
-    return cb && cb(new Error('Bad device address:', address));
-  }
-*/
-  registerAddress = registerAddressOffset + regObj[0];
-  bufferReadFunc = regObj[1];
-  addressTokens = address.split(':');
-  deviceAddress = addressTokens[0];
-  devicePort = addressTokens[1];
-  callbackArgs = {
-    registerAddress: registerAddress,
-    registerCount: 1,
-    bufferReadFunc: bufferReadFunc,
-    cb: cb
-  };
-
-  if (self.sockets[address]) {
-    callbackArgs.client = self.clients[address];
-    logger.debug('Already connected:', address);
-    self.q.push(callbackArgs, function pushCb(err) {
-      if (err) {
-        logger.error('pushCB error:', err);
-        return;
-      }
-
-      logger.debug('pushCB done:', callbackArgs.registerAddress);
-      return;
-    });
-    //readValue(self.clients[address], registerAddress, bufferReadFunc, cb);
-  } else {
-    if (self.connecting) {
-      self.callbacks[address].push(callbackArgs);
-    } else {
-      logger.debug('Trying connection:', address);
-      self.connecting = true;
-      self.callbacks[address] = [];
-      self.callbacks[address].push(callbackArgs);
-      self.clients[address] = client = new modbus.Client();
-      socket = net.connect(devicePort, deviceAddress, function onConnect() {
-        self.connecting = false;
-        self.sockets[address] = socket;
-        logger.debug('Connected:', address);
-
-        while (self.callbacks[address].length > 0) {
-          callbackArgs = self.callbacks[address].shift();
-          callbackArgs.client = client;
-          self.q.push(callbackArgs, function pushCb(err) {
-            if (err) {
-              logger.error('pushCB error:', err);
-              return;
-            }
-
-            logger.debug('pushCB done:', callbackArgs.register);
-            return;
-          });
-          //readValue(client, callbackArgs.register, callbackArgs.func, callbackArgs.callback);
-        }
-      });
-
-      client.writer().pipe(socket);
-      socket.pipe(client.reader());
-
-      socket.on('close', function onClose() {
-        self.connecting = false;
-        if (self.sockets[address]) {
-          delete self.sockets[address];
-        }
-
-        if (self.clients[address]) {
-          delete self.clients[address];
-        }
-
-        self.queue.kill();
-
-        logger.error('Modbus-tcp connection closed: (%s:%s)', deviceAddress, devicePort);
-      });
-
-      socket.on('error', function onError(err) {
-        self.connecting = false;
-        if (self.sockets[address]) {
-          delete self.sockets[address];
-        }
-
-        if (self.clients[address]) {
-          delete self.clients[address];
-        }
-
-        self.queue.kill();
-
-        logger.error('Modbus-tcp connection error:', err);
-      });
+  for (i = 0; i < self.children.length; i++) {
+    if (self.children[i].feedId == id) {
+      return self.children[i];
     }
   }
-};
+
+  return  undefined;
+}
+
+Gems35xx.prototype.run = function() {
+  var self = this;
+
+  if (self.intervalHandler != undefined) {
+    return;
+  }
+
+  self.intervalHandler = setInterval(function() {
+    self.children.map(function(child){
+      var callArgs = {
+        client: self.client,
+        registerAddress: child.registerAddress,
+        registerCount: child.registerCount,
+        readCb: function (err, registers) {
+          if (err == undefined) {
+            child.emit('done', registers)
+          }
+        }
+      };
+
+      self.queue.push(callArgs, function pushCb(err) {
+        if (err) {
+          logger.error('pushCB error: ', err);
+        }
+      });
+    });
+  }, self.interval);
+
+  self.isRun = true;
+}
+
+Gems35xx.prototype.getValue = function (id, field) {
+  var self = this;
+
+  if (field == undefined) {
+    field = id;
+    id = 0;
+  }
+
+  if (id != 0) {
+    var feeder = self.getChild(id);
+    if (feeder != undefined) {
+      return  feeder.getValue(field);
+    }
+    else {
+      return  undefined;
+    }
+  }
+
+  var i;
+  for(i = 0 ; i < self.items.length ; i++) {
+    if (self.items[i].field == field) {
+      return  self.items[i].value;
+    }
+  }
+
+  return  undefined;
+}
 
 module.exports = {
   create: Gems35xxCreate,
