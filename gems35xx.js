@@ -53,7 +53,7 @@ function readValue(task, done) {
     }
 
     if (cb) {
-      cb(null, data);
+      cb(null, task.registerAddress, task.registerCount, data);
     }
 
     return done && done();
@@ -160,22 +160,26 @@ Gems35xx.prototype.run = function() {
 
   self.intervalHandler = setInterval(function() {
     self.children.map(function(child){
-      var callArgs = {
-        client: self.client,
-        registerAddress: child.registerAddress,
-        registerCount: child.registerCount,
-        readCb: function (err, registers) {
-          if (err == undefined) {
-            child.emit('done', registers)
-          }
-        }
-      };
+      var i;
 
-      self.queue.push(callArgs, function pushCb(err) {
-        if (err) {
-          logger.error('pushCB error: ', err);
-        }
-      });
+      for(i = 0 ; i < child.addressSet.length ; i++) {
+        var callArgs = {
+          client: self.client,
+          registerAddress: child.addressSet[i].address,
+          registerCount: child.addressSet[i].count,
+          readCb: function (err, address, count, registers) {
+            if (err == undefined) {
+              child.emit('done', address, count, registers)
+            }
+          }
+        };
+
+        self.queue.push(callArgs, function pushCb(err) {
+          if (err) {
+            logger.error('pushCB error: ', err);
+          }
+        });
+      }
     });
   }, self.interval);
 

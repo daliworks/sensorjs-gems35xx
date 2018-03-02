@@ -31,41 +31,68 @@ function Gems35xxBase (parent) {
   self.feedId = 0;
   self.run = false;
   self.interval = 10000;
-  self.registerAddress = 30000;
-  self.registerCount = 104;  
-  self.items = {
-    temperature:    { value: 0, registered: false, offset: 1,  type: 'readUInt16BE', converter: TemperatureConverter },
-    frequency:      { value: 0, registered: false, offset: 2,  type: 'readUInt16BE', converter: FrequencyConverter},
-    V123LNAverage:  { value: 0, registered: false, offset: 64, type: 'readUInt32BE', converter: ValueConverter},
-    V123LLAverage:  { value: 0, registered: false, offset: 66, type: 'readUInt32BE', converter: ValueConverter},
-    V123LNUnbalance:{ value: 0, registered: false, offset: 68, type: 'readUInt16BE', converter: ValueConverter},
-    V123LLUnbalance:{ value: 0, registered: false, offset: 69, type: 'readUInt16BE', converter: ValueConverter},
-    V1:             { value: 0, registered: false, offset: 70, type: 'readUInt32BE', converter: ValueConverter},
-    V12:            { value: 0, registered: false, offset: 72, type: 'readUInt32BE', converter: ValueConverter},
-    V1Unbalance:    { value: 0, registered: false, offset: 74, type: 'readUInt16BE', converter: ValueConverter},
-    V12Unbalance:   { value: 0, registered: false, offset: 75, type: 'readUInt16BE', converter: ValueConverter},
-    V2:             { value: 0, registered: false, offset: 76, type: 'readUInt32BE', converter: ValueConverter},
-    V23:            { value: 0, registered: false, offset: 78, type: 'readUInt32BE', converter: ValueConverter},
-    V2Unbalance:    { value: 0, registered: false, offset: 80, type: 'readUInt16BE', converter: ValueConverter},
-    V23Unbalance:   { value: 0, registered: false, offset: 81, type: 'readUInt16BE', converter: ValueConverter},
-    V3:             { value: 0, registered: false, offset: 82, type: 'readUInt32BE', converter: ValueConverter},
-    V31:            { value: 0, registered: false, offset: 84, type: 'readUInt32BE', converter: ValueConverter},
-    V3Unbalance:    { value: 0, registered: false, offset: 86, type: 'readUInt16BE', converter: ValueConverter},
-    V31Unbalance:   { value: 0, registered: false, offset: 87, type: 'readUInt16BE', converter: ValueConverter}  
+  self.addressSet = [
+    {
+      address: 30000,
+      count: 104
+    }
+  ];
+  self.items= {
+    temperature:    { value: undefined, registered: false, address: 30001, type: 'readUInt16BE', converter: TemperatureConverter },
+    frequency:      { value: undefined, registered: false, address: 30002, type: 'readUInt16BE', converter: FrequencyConverter},
+    V123LNAverage:  { value: undefined, registered: false, address: 30064, type: 'readUInt32BE', converter: ValueConverter},
+    V123LLAverage:  { value: undefined, registered: false, address: 30066, type: 'readUInt32BE', converter: ValueConverter},
+    V123LNUnbalance:{ value: undefined, registered: false, address: 30068, type: 'readUInt16BE', converter: ValueConverter},
+    V123LLUnbalance:{ value: undefined, registered: false, address: 30069, type: 'readUInt16BE', converter: ValueConverter},
+    V1:             { value: undefined, registered: false, address: 30070, type: 'readUInt32BE', converter: ValueConverter},
+    V12:            { value: undefined, registered: false, address: 30072, type: 'readUInt32BE', converter: ValueConverter},
+    V1Unbalance:    { value: undefined, registered: false, address: 30074, type: 'readUInt16BE', converter: ValueConverter},
+    V12Unbalance:   { value: undefined, registered: false, address: 30075, type: 'readUInt16BE', converter: ValueConverter},
+    V2:             { value: undefined, registered: false, address: 30076, type: 'readUInt32BE', converter: ValueConverter},
+    V23:            { value: undefined, registered: false, address: 30078, type: 'readUInt32BE', converter: ValueConverter},
+    V2Unbalance:    { value: undefined, registered: false, address: 30080, type: 'readUInt16BE', converter: ValueConverter},
+    V23Unbalance:   { value: undefined, registered: false, address: 30081, type: 'readUInt16BE', converter: ValueConverter},
+    V3:             { value: undefined, registered: false, address: 30082, type: 'readUInt32BE', converter: ValueConverter},
+    V31:            { value: undefined, registered: false, address: 30084, type: 'readUInt32BE', converter: ValueConverter},
+    V3Unbalance:    { value: undefined, registered: false, address: 30086, type: 'readUInt16BE', converter: ValueConverter},
+    V31Unbalance:   { value: undefined, registered: false, address: 30087, type: 'readUInt16BE', converter: ValueConverter}  
   };
-  self.on('done', function (registers) {
-    self.items.forEach(function (item) {
-      var buffer = new Buffer(4);
 
-      registers[item.offset].copy(buffer, 0);
-      registers[item.offset + 1].copy(buffer, 2);
+  self.on('done', function (startAddress, count, registers) {
+    function setValue (item) {
+      if (startAddress <= item.address && item.address < startAddress + count*2) {
+        var buffer = new Buffer(4);
 
-      if (item.converter != undefined) {
-        item.value = item.converter(buffer[item.type](0) || 0);
+        registers[item.address - startAddress].copy(buffer, 0);
+        registers[item.address - startAddress + 1].copy(buffer, 2);
+
+        if (item.converter != undefined) {
+          item.value = item.converter(buffer[item.type](0) || 0);
+        }
+        else {
+          item.value = (buffer[item.type](0) || 0);
+        }
       }
-      else {
-        item.value = (buffer[item.type](0) || 0);
-      }    });
+    };
+
+    setValue(self.items.temperature);
+    setValue(self.items.frequency);
+    setValue(self.items.V123LNAverage);
+    setValue(self.items.V123LLAverage);
+    setValue(self.items.V123LNUnbalance);
+    setValue(self.items.V123LLUnbalance);
+    setValue(self.items.V1);
+    setValue(self.items.V12);
+    setValue(self.items.V1Unbalance);
+    setValue(self.items.V12Unbalance);
+    setValue(self.items.V2);
+    setValue(self.items.V23);
+    setValue(self.items.V2Unbalance);
+    setValue(self.items.V23Unbalance);
+    setValue(self.items.V3);
+    setValue(self.items.V31);
+    setValue(self.items.V3Unbalance);
+    setValue(self.items.V31Unbalance);
   });
 
 }
