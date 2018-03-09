@@ -63,9 +63,15 @@ module.exports = {
       'gems35xxVA',
       'gems35xxPFAverage',
       'gems35xxCurrentUnbalance',
+      'gems35xxVolgateUnbalance',
       'gems35xxTHDAverage',
       'gems35xxPowerTHD',
-      'gems35xxPhase'
+      'gems35xxPhase',
+      'gems35xxDemandCurrent',
+      'gems35xxDemandMaxCurrent',
+      'gems35xxDemandPower',
+      'gems35xxDemandMaxPower',
+      'gems35xxDemandPredictionPower'
     ]
   },
   initNetworks: initNetworks,

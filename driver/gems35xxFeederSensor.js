@@ -35,6 +35,7 @@ Gems35xxFeederSensor.properties = {
   supportedNetworks: ['gems35xx-feeder-modbus-tcp'],
   dataTypes: {
     'gems35xxFeederType' : ['string'],
+    'gems35xxVoltage' : ['voltage'],
     'gems35xxCurrent' : ['current'],
     'gems35xxPower' : ['electricPower'],
     'gems35xxReactivePower' : ['electricPower'],
@@ -45,10 +46,16 @@ Gems35xxFeederSensor.properties = {
     'gems35xxPowerFactor' : ['powerFactor'],
     'gems35xxLeakageCurrent' : ['current'],
     "gems35xxPFAverage" : ['powerFactor'],
+    "gems35xxVoltageUnbalance" : ['percent'],
     "gems35xxCurrentUnbalance" : ['percent'],
     "gems35xxTHDAverage" : ['percent'],
     "gems35xxPowerTHD" : ['percent'],
-    "gems35xxPhase"  : ['number']  
+    "gems35xxPhase"  : ['number']  ,
+    "gems35xxDemandCurrent" : ['current'],
+    "gems35xxDemandMaxCurrent" : ['current'],
+    "gems35xxDemandPower" : ['electricPower'],
+    "gems35xxDemandMaxPower" : ['electricPower'],
+    "gems35xxDemandPredictionPower" : ['electricPower']
   },
   discoverable: false,
   addressable: true,
@@ -58,6 +65,7 @@ Gems35xxFeederSensor.properties = {
   idTemplate: '{gatewayId}-{deviceAddress}-{sequence}',
   models: [
     'gems35xxFeederType',
+    'gems35xxVoltage',
     'gems35xxCurrent',
     'gems35xxEnergy',
     'gems35xxReactiveEnergy',
@@ -68,10 +76,16 @@ Gems35xxFeederSensor.properties = {
     'gems35xxPowerFactor',
     'gems35xxLeakageCurrent',
     'gems35xxPFAverage',
+    'gems35xxVoltageUnbalance',
     'gems35xxCurrentUnbalance',
     'gems35xxTHDAverage',
     'gems35xxPowerTHD',
-    'gems35xxPhase'
+    'gems35xxPhase',
+    'gems35xxDemandCurrent',
+    'gems35xxDemandMaxCurrent',
+    'gems35xxDemandPower',
+    'gems35xxDemandMaxPower',
+    'gems35xxDemandPredictionPower'
   ],
   category: 'sensor'
 };
