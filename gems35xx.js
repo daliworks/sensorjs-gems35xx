@@ -22,11 +22,26 @@ var gems35xxList = [];
 function readValue(task, done) {
   var client = task.client;
   var cb = task.readCb;
-  var from = task.registerAddress - 30000;
-  var to = from + task.registerCount;
+  var from;
+  var to;
+  var readRegisters;
+
+  if (30000 <= task.registerAddress && task.registerAddress <= 39999) {
+    readRegisters = client.readInputRegisters;
+    from = task.registerAddress - 30000;
+    to = from + task.registerCount;
+  }
+  else if (40000 <= task.registerAddress && task.registerAddress <= 49999) {
+    readRegisters = client.readHoldingRegisters;
+    from = task.registerAddress - 40000;
+    to = from + task.registerCount;
+  }
+  else {
+    return  done('Invalid address : ', task.registerAddress);
+  }
 
   logger.debug('readValue() registerAddress:', task.registerAddress);
-  client.readInputRegisters(MODBUS_UNIT_ID, from, to, function readCb(err, data) {
+  readRegisters(MODBUS_UNIT_ID, from, to, function readCb(err, data) {
     var buffer = new Buffer(4);
     var value;
     var badDataErr;
@@ -60,6 +75,42 @@ function readValue(task, done) {
   });
 }
 
+// client: modbus client
+// registerAddress: register address from 40000
+// bufferReadFunc: read function name of Buffer object
+// cb: function (err, value)
+function writeValue(task, done) {
+  var client = task.client;
+  var cb = task.writeCb;
+  var from = task.registerAddress - 40000;
+  var to = from + task.registerCount;
+  var data = task.data;
+  var buffer = Buffer(task.registerCount * 2);
+  var i;
+
+  logger.debug('writeValue() registerAddress:', task.registerAddress);
+  client.writeMultipleRegisters(MODBUS_UNIT_ID, from, to, data, function writeCb(err, data) {
+    var value;
+    var badDataErr;
+
+    if (err) {
+      logger.error('modbus-tcp.writeMultipleRegisters() Error:', err);
+
+      if (cb) {
+        cb(err);
+      }
+
+      return done && done(err);
+    }
+
+    if (cb) {
+      cb(null, '{ status: \'on\', duration: 0 }');
+    }
+
+    return done && done();
+  });
+}
+
 function Gems35xx (address, port) {
   var self = this;
 
@@ -68,9 +119,13 @@ function Gems35xx (address, port) {
   self.address = address;
   self.port    = port;
   self.children = [];
-  self.queue = async.queue(readValue);
-  self.queue.drain = function () {
-    logger.debug('All the tasks have been done.');
+  self.readQueue = async.queue(readValue);
+  self.readQueue.drain = function () {
+    logger.debug('All the read tasks have been done.');
+  };
+  self.writeQueue = async.queue(writeValue);
+  self.writeQueue.drain = function () {
+    logger.debug('All the write tasks have been done.');
   };
 
   self.isRun = false;
@@ -85,6 +140,7 @@ function  Gems35xxCreate(address, port) {
 
   gems35xx = Gems35xxGet(address, port);
   if (gems35xx == undefined) {
+    logger.debug('New GEMS35xx is created!');
     gems35xx = new Gems35xx(address, port) ;
     gems35xxList.push(gems35xx);
 
@@ -101,7 +157,8 @@ function  Gems35xxCreate(address, port) {
       gems35xx.socket = undefined;
       gems35xx.client = undefined;
 
-      gems35xx.queue.kill();
+      gems35xx.readQueue.kill();
+      gems35xx.writeQueue.kill();
 
       logger.error('Modbus-tcp connection closed: (%s:%s)', address, port);
     });
@@ -110,7 +167,8 @@ function  Gems35xxCreate(address, port) {
       gems35xx.socket = undefined;
       gems35xx.client = undefined;
 
-      gems35xx.queue.kill();
+      gems35xx.readQueue.kill();
+      gems35xx.writeQueue.kill();
 
       logger.error('Modbus-tcp connection error:', err);
     });
@@ -159,28 +217,30 @@ Gems35xx.prototype.run = function() {
   }
 
   self.intervalHandler = setInterval(function() {
-    self.children.map(function(child){
-      var i;
+    if (self.client != undefined) {
+      self.children.map(function (child) {
+        var i;
 
-      for(i = 0 ; i < child.addressSet.length ; i++) {
-        var callArgs = {
-          client: self.client,
-          registerAddress: child.addressSet[i].address,
-          registerCount: child.addressSet[i].count,
-          readCb: function (err, address, count, registers) {
-            if (err == undefined) {
-              child.emit('done', address, count, registers)
+        for (i = 0; i < child.addressSet.length; i++) {
+          var callArgs = {
+            client: self.client,
+            registerAddress: child.addressSet[i].address,
+            registerCount: child.addressSet[i].count,
+            readCb: function (err, address, count, registers) {
+              if (err == undefined) {
+                child.emit('done', address, count, registers)
+              }
             }
-          }
-        };
+          };
 
-        self.queue.push(callArgs, function pushCb(err) {
-          if (err) {
-            logger.error('pushCB error: ', err);
-          }
-        });
-      }
-    });
+          self.readQueue.push(callArgs, function pushCb(err) {
+            if (err) {
+              logger.error('pushCB error: ', err);
+            }
+          });
+        }
+      });
+    }
   }, self.interval);
 
   self.isRun = true;
@@ -212,6 +272,29 @@ Gems35xx.prototype.getValue = function (id, field) {
   }
 
   return  undefined;
+}
+
+Gems35xx.prototype.setValue = function (address, count, registers, cb) {
+  var self = this;
+
+  if (self.client != undefined) {
+    var callArgs = {
+      client: self.client,
+      registerAddress: address,
+      registerCount: count,
+      data : registers,
+      writeCb: cb
+    };
+
+    self.writeQueue.push(callArgs, function pushCb(err) {
+      if (err) {
+        logger.error('pushCB error: ', err);
+      }
+    });
+  } 
+  else {
+    logger.debug('Client is undefined.');
+  }
 }
 
 module.exports = {

@@ -67,8 +67,8 @@ function Gems35xxFeeder (parent, id) {
     currentUnbalance:{value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 12, type: 'readUInt16BE', converter: ValueConverter},
     THDAverage:     { value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 13, type: 'readUInt16BE', converter: ValueConverter},
     voltageL1:      { value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 16, type: 'readUInt32BE', converter: ValueConverter},
-    CurrentL1:      { value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 18, type: 'readUInt32BE', converter: ValueConverter},
-    PowerL1:        { value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 20, type: 'readInt32BE',  converter: ValueConverter},
+    currentL1:      { value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 18, type: 'readUInt32BE', converter: ValueConverter},
+    powerL1:        { value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 20, type: 'readInt32BE',  converter: ValueConverter},
     reactivePowerL1:{ value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 22, type: 'readInt32BE',  converter: ValueConverter},
     apparentPowerL1:{ value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 24, type: 'readInt32BE',  converter: ValueConverter},
     voltageUnbalanceL1:{value: undefined, registered: false, address: 32420 + (id - 1) * 64 + 26, type: 'readUInt16BE', converter: ValueConverter},
@@ -229,14 +229,14 @@ function Gems35xxFeederCreate(address, port, id) {
 
 Gems35xxFeeder.prototype.registerField = function(sensor) {
   var self = this;
-  var i;
 
   if (self.items[sensor.field] != undefined) {
     self.items[sensor.field].registered = true;
     self.parent.run();
   }
   else{
-    logger.error('Undefined field tried to register : ', sensor.field);
+    logger.error('Undefined feeder field tried to register : ', sensor.field);
+    logger.error(self.items);
   }
 }
 
@@ -247,7 +247,7 @@ Gems35xxFeeder.prototype.getValue = function (sensor) {
     return  self.items[sensor.field].value;
   }
 
-  logger.error('Tried to get value of undefined field : ', sensor.field);
+  logger.error('Tried to get value of undefined feeder field : ', sensor.field);
   return  undefined;
 }
 

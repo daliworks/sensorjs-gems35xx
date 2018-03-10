@@ -3,8 +3,15 @@
 var logger = require('log4js').getLogger('Sensor');
 
 function initDrivers() {
+  var gems35xxBaseActuator;
   var gems35xxBaseSensor;
   var gems35xxFeederSensor;
+
+  try {
+    gems35xxBaseActuator = require('./driver/gems35xxBaseActuator');
+  } catch(e) {
+    logger.error('Cannot load ./driver/gems35xxBaseActuator', e);
+  }
 
   try {
     gems35xxBaseSensor = require('./driver/gems35xxBaseSensor');
@@ -19,6 +26,7 @@ function initDrivers() {
   }
 
   return {
+    gems35xxBaseActuator: gems35xxBaseActuator,
     gems35xxBaseSensor: gems35xxBaseSensor,
     gems35xxFeederSensor: gems35xxFeederSensor
   };
@@ -42,14 +50,18 @@ function initNetworks() {
 module.exports = {
   networks: ['gems35xx-base-modbus-tcp', 'gems35xx-feeder-modbus-tcp'],
   drivers: {
+    gems35xxBaseActuator: [
+      'gems35xxDemandReset'
+   ],
     gems35xxBaseSensor: [
-      'gems35xxTemperature',
-      'gems35xxFrequency',
-      'gems35xxVoltage',
-      'gems35xxVoltageUnbalance'
+      'gems35xxBaseTemperature',
+      'gems35xxBaseFrequency',
+      'gems35xxBaseVoltage',
+      'gems35xxBaseVoltageUnbalance'
     ],
     gems35xxFeederSensor: [
       'gems35xxFeederType',
+      'gems35xxVoltage',
       'gems35xxCurrent',
       'gems35xxPower',
       'gems35xxReactivePower',
@@ -63,7 +75,7 @@ module.exports = {
       'gems35xxVA',
       'gems35xxPFAverage',
       'gems35xxCurrentUnbalance',
-      'gems35xxVolgateUnbalance',
+      'gems35xxVoltageUnbalance',
       'gems35xxTHDAverage',
       'gems35xxPowerTHD',
       'gems35xxPhase',

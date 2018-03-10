@@ -6,27 +6,33 @@ var SensorLib = require('../index');
 var Actuator = SensorLib.Actuator;
 var _ = require('lodash');
 var logger = Actuator.getLogger();
-var meltem = require('../meltem');
+var Gems35xxBase = require('../gems35xxBase');
 
 function Gems35xxBaseActuator(sensorInfo, options) {
   var self = this;
+  var tokens;
 
   Actuator.call(self, sensorInfo, options);
 
-  self.sequence = self.id.split('-')[2];
-  self.deviceAddress = self.id.split('-')[1];
-  self.gatewayId = self.id.split('-')[0];
+  tokens = self.id.split('-');
+  self.address = tokens[1].split(':')[0];
+  self.port = tokens[1].split(':')[1];
+  self.field = tokens[2];
   self.lastTime = 0;
-  
-  self.parent = Gems35xxBase.create(self.address, self.port);
   
   if (sensorInfo.model) {
     self.model = sensorInfo.model;
   }
 
   self.dataType = Gems35xxBaseActuator.properties.dataTypes[self.model][0];
-  
-  self.parent.registerField(self);
+ 
+  try {
+    self.parent = Gems35xxBase.create(self.address, self.port);
+    self.parent.register(self);
+  }
+  catch(err) {
+    logger.error(err);
+  }
 }
 
 Gems35xxBaseActuator.properties = {
@@ -38,7 +44,7 @@ Gems35xxBaseActuator.properties = {
     'gems35xxDemandReset'
   ],
   commands: {
-    gems35xxDemandReset: [ 'set', 'get' ]
+    gems35xxDemandReset: [ 'on', 'off' ]
   },
   discoverable: false,
   addressable: true,
@@ -74,9 +80,8 @@ Gems35xxBaseActuator.prototype._set = function (cmd, options, cb) {
   var self = this;
 
   try{
-    if (options.settings != undefined) {
-      var settings = JSON.parse(options.settings);
-      self.master.emit(self.deviceAddress + '-' + self.sequence, settings);
+    switch (self.field) {
+    case 'demandReset' : self.parent.emit('demandReset', cb);
     }
   }
   catch(err) {
@@ -85,36 +90,47 @@ Gems35xxBaseActuator.prototype._set = function (cmd, options, cb) {
 
 }
 
-Gems35xxBaseActuator.prototype._get = function (cmd, options, cb) {
+Gems35xxBaseActuator.prototype._get = function (cb) {
   var self = this;
-  
-  sendCommand(self.shortId, cmd, options, function (err, result) {
-    if(err) {
-      self.myStatus = 'err';
-    } else {
-      self.myStatus = 'on';
-    }
-    return cb && cb(err, result);
-  });
+  var result = {
+    status: 'on',
+    id: self.id,
+    result: {},
+    time: {}
+  };
+
+  logger.debug('Called _get():', self.id);
+
+  result.result[self.dataType] = 'off';
+
+  self.emit('data', result);
 };
 
 Gems35xxBaseActuator.prototype.getStatus = function () {
-  return this.myStatus;
+  var self = this;
+
+  self.myStatus = 'on';
+
+  return self.myStatus;
 };
 
 Gems35xxBaseActuator.prototype.connectListener = function () {
-  this.myStatus = 'on';
+  var self = this;
+
+  self.myStatus = 'on';
 };
 
 Gems35xxBaseActuator.prototype.disconnectListener = function () {
+  var self = this;
+
   var rtn = {
     status: 'off',
-    id: this.id,
+    id: self.id,
     message: 'disconnected'
   };
 
-  this.myStatus = 'off';
-  this.emit('data', rtn);
+  self.myStatus = 'off';
+  self.emit('data', rtn);
 };
 
 module.exports = Gems35xxBaseActuator;

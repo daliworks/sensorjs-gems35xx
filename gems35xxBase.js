@@ -35,9 +35,14 @@ function Gems35xxBase (parent) {
     {
       address: 30000,
       count: 104
+    },
+    {
+      address: 40120,
+      count: 1
     }
   ];
-  self.items= {
+
+  self.sensors = {
     temperature:    { value: undefined, registered: false, address: 30001, type: 'readUInt16BE', converter: TemperatureConverter },
     frequency:      { value: undefined, registered: false, address: 30002, type: 'readUInt16BE', converter: FrequencyConverter},
     V123LNAverage:  { value: undefined, registered: false, address: 30064, type: 'readUInt32BE', converter: ValueConverter},
@@ -58,6 +63,11 @@ function Gems35xxBase (parent) {
     V31Unbalance:   { value: undefined, registered: false, address: 30087, type: 'readUInt16BE', converter: ValueConverter}  
   };
 
+  self.actuators={
+    demandReset:    { value: undefined, registered: false, address: 40120, type: 'readUInt16BE', writeType: 'writeUInt16BE', converter: undefined }  
+
+  };
+
   self.on('done', function (startAddress, count, registers) {
     function setValue (item) {
       if (startAddress <= item.address && item.address < startAddress + count*2) {
@@ -75,26 +85,40 @@ function Gems35xxBase (parent) {
       }
     };
 
-    setValue(self.items.temperature);
-    setValue(self.items.frequency);
-    setValue(self.items.V123LNAverage);
-    setValue(self.items.V123LLAverage);
-    setValue(self.items.V123LNUnbalance);
-    setValue(self.items.V123LLUnbalance);
-    setValue(self.items.V1);
-    setValue(self.items.V12);
-    setValue(self.items.V1Unbalance);
-    setValue(self.items.V12Unbalance);
-    setValue(self.items.V2);
-    setValue(self.items.V23);
-    setValue(self.items.V2Unbalance);
-    setValue(self.items.V23Unbalance);
-    setValue(self.items.V3);
-    setValue(self.items.V31);
-    setValue(self.items.V3Unbalance);
-    setValue(self.items.V31Unbalance);
+    setValue(self.sensors.temperature);
+    setValue(self.sensors.frequency);
+    setValue(self.sensors.V123LNAverage);
+    setValue(self.sensors.V123LLAverage);
+    setValue(self.sensors.V123LNUnbalance);
+    setValue(self.sensors.V123LLUnbalance);
+    setValue(self.sensors.V1);
+    setValue(self.sensors.V12);
+    setValue(self.sensors.V1Unbalance);
+    setValue(self.sensors.V12Unbalance);
+    setValue(self.sensors.V2);
+    setValue(self.sensors.V23);
+    setValue(self.sensors.V2Unbalance);
+    setValue(self.sensors.V23Unbalance);
+    setValue(self.sensors.V3);
+    setValue(self.sensors.V31);
+    setValue(self.sensors.V3Unbalance);
+    setValue(self.sensors.V31Unbalance);
+    setValue(self.actuators.demandReset);
   });
 
+  self.on('demandReset', function (cb) {
+    var field = 'demandReset';
+
+    if (self.actuators[field] != undefined) {
+      var registers = [];
+      logger.trace('Request Command : ', field);
+
+      registers[0] = new Buffer(4);
+      registers[0][self.actuators[field].writeType](0x1234, 0);
+      registers[0][self.actuators[field].writeType](0, 2);
+      self.parent.setValue(self.actuators[field].address, 1, registers, cb);
+    }
+  });
 }
 
 util.inherits(Gems35xxBase, EventEmitter);
@@ -105,32 +129,39 @@ function Gems35xxBaseCreate(address, port) {
   var gems35xxBase = gems35xx.getChild(0);
   if (gems35xxBase == undefined) {
     gems35xxBase = new Gems35xxBase(gems35xx);
+    logger.trace('GEMS35xx is created.');
     gems35xx.addChild(gems35xxBase);
   }
 
   return  gems35xxBase;
 }
 
-Gems35xxBase.prototype.registerField = function(sensor) {
+Gems35xxBase.prototype.register = function(endpoint) {
   var self = this;
 
-  if (self.items[sensor.field] != undefined) {
-    self.items[sensor.field].registered = true;
+  if (self.sensors[endpoint.field] != undefined) {
+    self.sensors[endpoint.field].registered = true;
     self.parent.run();
   }
+  else if (self.actuators[endpoint.field] != undefined) {
+    self.actuators[endpoint.field].registered = true;
+  }
   else{
-    logger.error('Undefined field tried to register : ', sensor.field);
+    logger.error('Undefined base field tried to register : ', endpoint.field);
   }
 }
 
-Gems35xxBase.prototype.getValue = function (sensor) {
+Gems35xxBase.prototype.getValue = function (endpoint) {
   var self = this;
 
-  if (self.items[sensor.field] != undefined) {
-    return  self.items[sensor.field].value;
+  if (self.sensors[endpoint.field] != undefined) {
+    return  self.sensors[endpoint.field].value;
+  }
+  else if (self.actuators[endpoint.field] != undefined) {
+    return  self.actuators[endpoint.field].value;
   }
 
-  logger.error('Tried to get value of undefined field : ', sensor.field);
+  logger.error('Tried to get value of undefined field : ', endpoint.field);
   return  undefined;
 }
 

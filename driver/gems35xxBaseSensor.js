@@ -26,7 +26,7 @@ function Gems35xxBaseSensor(sensorInfo, options) {
 
   self.dataType = Gems35xxBaseSensor.properties.dataTypes[self.model][0];
 
-   self.parent.registerField(self);
+   self.parent.register(self);
 }
 
 util.inherits(Gems35xxBaseSensor, Sensor);
@@ -34,10 +34,10 @@ util.inherits(Gems35xxBaseSensor, Sensor);
 Gems35xxBaseSensor.properties = {
   supportedNetworks: ['gems35xx-base-modbus-tcp'],
   dataTypes: {
-    'gems35xxTemperature' : ['temperature'],
-    'gems35xxFrequency' : ['frequency'],
-    'gems35xxVoltage' : ['voltage'],
-    'gems35xxVoltageUnbalance' : ['percent']
+    'gems35xxBaseTemperature' : ['temperature'],
+    'gems35xxBaseFrequency' : ['frequency'],
+    'gems35xxBaseVoltage' : ['voltage'],
+    'gems35xxBaseVoltageUnbalance' : ['percent']
   },
   discoverable: false,
   addressable: true,
@@ -46,10 +46,10 @@ Gems35xxBaseSensor.properties = {
   maxRetries: 8,
   idTemplate: '{gatewayId}-{deviceAddress}-{sequence}',
   models: [
-    'gems35xxTemperature',
-    'gems35xxFrequency',
-    'gems35xxVoltage',
-    'gems35xxVoltageUnbalance'
+    'gems35xxBaseTemperature',
+    'gems35xxBaseFrequency',
+    'gems35xxBaseVoltage',
+    'gems35xxBaseVoltageUnbalance'
   ],
   category: 'sensor'
 };
