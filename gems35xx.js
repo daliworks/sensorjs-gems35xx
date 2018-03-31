@@ -8,10 +8,17 @@ var modbus = require('modbus-tcp');
 var EventEmitter = require('events').EventEmitter;
 
 var logger = require('./index').Sensor.getLogger('Sensor');
+var CONFIG;
+
+try {
+  CONFIG = require('config');
+} catch (e) {
+  logger.warn('MODULES_NOT_SUPPORTED - config');
+}
 
 var MODBUS_UNIT_ID = 1;
 var RETRY_OPEN_INTERVAL = 3000; // 3sec
-var GEMS35XX_REGISTER_UPDATE_INTERVAL = 1000;
+var GEMS35XX_REGISTER_UPDATE_INTERVAL = 10000;
 
 var gems35xxList = [];
 

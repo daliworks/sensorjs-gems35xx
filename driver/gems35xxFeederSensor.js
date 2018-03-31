@@ -63,6 +63,30 @@ Gems35xxFeederSensor.properties = {
   maxInstances: 32,
   maxRetries: 8,
   idTemplate: '{gatewayId}-{deviceAddress}-{sequence}',
+  onChange: {
+    'gems35xxFeederType': false,
+    'gems35xxVoltage' : true,
+    'gems35xxCurrent' : true,
+    'gems35xxEnergy' : true,
+    'gems35xxReactiveEnergy' : true,
+    'gems35xxApparentEnergy' : true,
+    'gems35xxPower' : true,
+    'gems35xxReactivePower' : true,
+    'gems35xxApparentPower' : true,
+    'gems35xxPowerFactor' : true,
+    'gems35xxLeakageCurrent' : true,
+    'gems35xxPFAverage' : true,
+    'gems35xxVoltageUnbalance' : true,
+    'gems35xxCurrentUnbalance' : true,
+    'gems35xxTHDAverage' : true,
+    'gems35xxPowerTHD' : true,
+    'gems35xxPhase' : true,
+    'gems35xxDemandCurrent' : true,
+    'gems35xxDemandMaxCurrent' : true,
+    'gems35xxDemandPower' : true,
+    'gems35xxDemandMaxPower' : true,
+    'gems35xxDemandPredictionPower' : true
+  },
   models: [
     'gems35xxFeederType',
     'gems35xxVoltage',
@@ -93,27 +117,27 @@ Gems35xxFeederSensor.properties = {
 
 Gems35xxFeederSensor.prototype._get = function (cb) {
   var self = this;
-  var result = {
-    status: 'on',
-    id: self.id,
-    values: []
-  };
 
 
   logger.debug('Called _get():', self.id);
-  //result.result[self.dataType] = self.parent.getValue(self);
-
-//  logger.debug('Emit Data :', result);
- // self.emit('data', result);
 
  var values = self.parent.getValues(self);
  if (values == undefined)  {
+   var result = {
+     status: 'on',
+     id: self.id,
+     result: {},
+     time: {}
+   };
   self.emit('data', result);
  }
  else {
-  result.values = values;
+   var result = {
+     status: 'on',
+     id: self.id,
+    values: values
+   };
 
-  logger.debug('Emit Data :', result);
   self.emit('data_array', result);
  }
 };
