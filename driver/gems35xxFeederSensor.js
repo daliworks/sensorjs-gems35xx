@@ -96,15 +96,26 @@ Gems35xxFeederSensor.prototype._get = function (cb) {
   var result = {
     status: 'on',
     id: self.id,
-    result: {},
-    time: {}
+    values: []
   };
 
+
   logger.debug('Called _get():', self.id);
+  //result.result[self.dataType] = self.parent.getValue(self);
 
-  result.result[self.dataType] = self.parent.getValue(self);
+//  logger.debug('Emit Data :', result);
+ // self.emit('data', result);
 
+ var values = self.parent.getValues(self);
+ if (values == undefined)  {
   self.emit('data', result);
+ }
+ else {
+  result.values = values;
+
+  logger.debug('Emit Data :', result);
+  self.emit('data_array', result);
+ }
 };
 
 Gems35xxFeederSensor.prototype._enableChange = function () {
