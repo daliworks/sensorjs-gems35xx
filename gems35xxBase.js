@@ -88,7 +88,7 @@ function Gems35xxBase (parent) {
     setValue(self.sensors.temperature);
     setValue(self.sensors.frequency);
     setValue(self.sensors.v123LNVoltageAverage);
-    setValue(self.sensors.v123llvoltageaverage);
+    setValue(self.sensors.v123LLVoltageAverage);
     setvalue(self.sensors.v123LNVoltageUnbalance);
     setValue(self.sensors.v123LLVoltageUnbalance);
     setValue(self.sensors.v1Voltage);
