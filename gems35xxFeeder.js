@@ -29,7 +29,12 @@ function  FeederType(value) {
 function  ValueConverter(value) {
   return  value / 100.0;
 }
+
 function  EnergyConverter(value) {
+  return  value / 10.0;
+}
+
+function  leakageCurrentConverter(value) {
   return  value / 10.0;
 }
 
@@ -63,52 +68,54 @@ function Gems35xxFeeder (parent, id) {
     power:          { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 4,  type: 'readInt32BE',  converter: ValueConverter},
     reactivePower:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 6,  type: 'readInt32BE',  converter: undefined},
     apparentPower:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 8,  type: 'readUInt32BE', converter: undefined},
-    PFAverage:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 10, type: 'readInt16BE',  converter: ValueConverter},
+    pFAverage:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 10, type: 'readInt16BE',  converter: ValueConverter},
     currentUnbalance:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 12, type: 'readUInt16BE', converter: ValueConverter},
-    THDAverage:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 13, type: 'readUInt16BE', converter: ValueConverter},
-    voltageL1:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 16, type: 'readUInt32BE', converter: ValueConverter},
-    currentL1:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 18, type: 'readUInt32BE', converter: ValueConverter},
-    powerL1:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 20, type: 'readInt32BE',  converter: ValueConverter},
-    reactivePowerL1:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 22, type: 'readInt32BE',  converter: ValueConverter},
-    apparentPowerL1:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 24, type: 'readInt32BE',  converter: ValueConverter},
-    voltageUnbalanceL1:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 26, type: 'readUInt16BE', converter: ValueConverter},
-    currentUnbalanceL1:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 27, type: 'readUInt16BE', converter: ValueConverter},
-    phaseL1:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 28, type: 'readUInt16BE', converter: ValueConverter},
-    powerFactorL1:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 29, type: 'readInt16BE',  converter: ValueConverter},
-    powerTHDL1:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 30, type: 'readUInt16BE', converter: ValueConverter},
-    voltageL2:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 32, type: 'readUInt32BE', converter: ValueConverter},
-    currentL2:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 34, type: 'readUInt32BE', converter: ValueConverter},
-    powerL2:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 36, type: 'readInt32BE',  converter: ValueConverter},
-    reactivePowerL2:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 38, type: 'readInt32BE',  converter: ValueConverter},
-    apparentPowerL2:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 40, type: 'readInt32BE',  converter: ValueConverter},
-    voltageUnbalanceL2:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 42, type: 'readUInt16BE', converter: ValueConverter},
-    currentUnbalanceL2:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 43, type: 'readUInt16BE', converter: ValueConverter},
-    phaseL2:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 44, type: 'readUInt16BE', converter: ValueConverter},
-    powerFactorL2:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 45, type: 'readInt16BE',  converter: ValueConverter},
-    powerTHDL2:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 46, type: 'readUInt16BE', converter: ValueConverter},
-    voltageL3:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 48, type: 'readUInt32BE', converter: ValueConverter},
-    currentL3:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 50, type: 'readUInt32BE', converter: ValueConverter},
-    powerL3:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 52, type: 'readInt32BE',  converter: ValueConverter},
-    reactivePowerL3:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 54, type: 'readInt32BE',  converter: ValueConverter},
-    apparentPowerL3:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 56, type: 'readInt32BE',  converter: ValueConverter},
-    voltageUnbalanceL3:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 58, type: 'readUInt16BE', converter: ValueConverter},
-    currentUnbalanceL3:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 59, type: 'readUInt16BE', converter: ValueConverter},
-    phaseL3:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 60, type: 'readUInt16BE', converter: ValueConverter},
-    powerFactorL3:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 61, type: 'readInt16BE',  converter: ValueConverter},
-    powerTHDL3:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 62, type: 'readUInt16BE', converter: ValueConverter},
+    tHDAverage:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 13, type: 'readUInt16BE', converter: ValueConverter},
+    lGCLeakageCurrent:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 14, type: 'readInt32BE', converter: leakageCurrentConverter},
+    lGRLeakageCurrent:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 15, type: 'readInt32BE', converter: leakageCurrentConverter},
+    l1Vvoltage:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 16, type: 'readUInt32BE', converter: ValueConverter},
+    l1Current:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 18, type: 'readUInt32BE', converter: ValueConverter},
+    l1Ppower:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 20, type: 'readInt32BE',  converter: ValueConverter},
+    l1ReactivePower:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 22, type: 'readInt32BE',  converter: ValueConverter},
+    l1ApparentPower:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 24, type: 'readInt32BE',  converter: ValueConverter},
+    l1VoltageUnbalance:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 26, type: 'readUInt16BE', converter: ValueConverter},
+    l1CurrentUnbalance:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 27, type: 'readUInt16BE', converter: ValueConverter},
+    l1Phase:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 28, type: 'readUInt16BE', converter: ValueConverter},
+    l1PowerFactor:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 29, type: 'readInt16BE',  converter: ValueConverter},
+    l1PowerTHD:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 30, type: 'readUInt16BE', converter: ValueConverter},
+    l2Voltage:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 32, type: 'readUInt32BE', converter: ValueConverter},
+    l2Current:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 34, type: 'readUInt32BE', converter: ValueConverter},
+    l2Power:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 36, type: 'readInt32BE',  converter: ValueConverter},
+    l2ReactivePower:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 38, type: 'readInt32BE',  converter: ValueConverter},
+    l2ApparentPower:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 40, type: 'readInt32BE',  converter: ValueConverter},
+    l2VoltageUnbalance:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 42, type: 'readUInt16BE', converter: ValueConverter},
+    l2CurrentUnbalance:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 43, type: 'readUInt16BE', converter: ValueConverter},
+    l2Phase:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 44, type: 'readUInt16BE', converter: ValueConverter},
+    l2PowerFactor:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 45, type: 'readInt16BE',  converter: ValueConverter},
+    l2PowerTHD:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 46, type: 'readUInt16BE', converter: ValueConverter},
+    l3Voltage:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 48, type: 'readUInt32BE', converter: ValueConverter},
+    l3Current:      { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 50, type: 'readUInt32BE', converter: ValueConverter},
+    l3Power:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 52, type: 'readInt32BE',  converter: ValueConverter},
+    l3ReactivePower:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 54, type: 'readInt32BE',  converter: ValueConverter},
+    l3ApparentPower:{ value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 56, type: 'readInt32BE',  converter: ValueConverter},
+    l3VoltageUnbalance:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 58, type: 'readUInt16BE', converter: ValueConverter},
+    l3CurrentUnbalance:{value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 59, type: 'readUInt16BE', converter: ValueConverter},
+    l3Phase:        { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 60, type: 'readUInt16BE', converter: ValueConverter},
+    l3PowerFactor:  { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 61, type: 'readInt16BE',  converter: ValueConverter},
+    l3PowerTHD:     { value: undefined, values: [], registered: false, address: 32420 + (id - 1) * 64 + 62, type: 'readUInt16BE', converter: ValueConverter},
 
-    demandCurrentL1:        { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 0, type: 'readUInt32BE', converter: undefined},
-    demandMaxCurrentL1:     { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 2, type: 'readUInt32BE', converter: undefined},
-    demandPowerL1:          { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 4, type: 'readInt32BE', converter: undefined},
-    demandMaxPowerL1:       { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 6, type: 'readInt32BE', converter: undefined},
-    demandCurrentL2:        { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 8, type: 'readUInt32BE', converter: undefined},
-    demandMaxCurrentL2:     { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 10, type: 'readUInt32BE', converter: undefined},
-    demandPowerL2:          { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 12, type: 'readInt32BE', converter: undefined},
-    demandMaxPowerL2:       { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 14, type: 'readInt32BE', converter: undefined},
-    demandCurrentL3:        { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 16, type: 'readUInt32BE', converter: undefined},
-    demandMaxCurrentL3:     { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 18, type: 'readUInt32BE', converter: undefined},
-    demandPowerL3:          { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 20, type: 'readInt32BE', converter: undefined},
-    demandMaxPowerL3:       { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 22, type: 'readInt32BE', converter: undefined},
+    l1DemandCurrent:        { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 0, type: 'readUInt32BE', converter: undefined},
+    l1DemandMaxCurrent:     { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 2, type: 'readUInt32BE', converter: undefined},
+    l1DemandPower:          { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 4, type: 'readInt32BE', converter: undefined},
+    l1DemandMaxPower:       { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 6, type: 'readInt32BE', converter: undefined},
+    l2DemandCurrent:        { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 8, type: 'readUInt32BE', converter: undefined},
+    l2DemandMaxCurrent:     { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 10, type: 'readUInt32BE', converter: undefined},
+    l2DemandPower:          { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 12, type: 'readInt32BE', converter: undefined},
+    l2DemandMaxPower:       { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 14, type: 'readInt32BE', converter: undefined},
+    l3DemandCurrent:        { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 16, type: 'readUInt32BE', converter: undefined},
+    l3DemandMaxCurrent:     { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 18, type: 'readUInt32BE', converter: undefined},
+    l3DemandPower:          { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 20, type: 'readInt32BE', converter: undefined},
+    l3DemandMaxPower:       { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 22, type: 'readInt32BE', converter: undefined},
     demandCurrent:          { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 24, type: 'readUInt32BE', converter: undefined},
     demandMaxCurrent:       { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 26, type: 'readUInt32BE', converter: undefined},
     demandPower:            { value: undefined, values: [], registered: false, address: 36000 + (id - 1) * 34 + 28, type: 'readInt32BE', converter: undefined},
@@ -155,39 +162,41 @@ function Gems35xxFeeder (parent, id) {
     setValue(self.items.power);
     setValue(self.items.reactivePower);
     setValue(self.items.apparentPower);
-    setValue(self.items.PFAverage);
+    setValue(self.items.pFAverage);
     setValue(self.items.currentUnbalance);
-    setValue(self.items.THDAverage);
-    setValue(self.items.voltageL1);
-    setValue(self.items.currentL1);
-    setValue(self.items.powerL1);
-    setValue(self.items.reactivePowerL1);
-    setValue(self.items.apparentPowerL1);
-    setValue(self.items.voltageUnbalanceL1);
-    setValue(self.items.currentUnbalanceL1);
-    setValue(self.items.phaseL1);
-    setValue(self.items.powerFactorL1);
-    setValue(self.items.powerTHDL1);
-    setValue(self.items.voltageL2);
-    setValue(self.items.currentL2);
-    setValue(self.items.powerL2);
-    setValue(self.items.reactivePowerL2);
-    setValue(self.items.apparentPowerL2);
-    setValue(self.items.voltageUnbalanceL2);
-    setValue(self.items.currentUnbalanceL2);
-    setValue(self.items.phaseL2);
-    setValue(self.items.powerFactorL2);
-    setValue(self.items.powerTHDL2);
-    setValue(self.items.voltageL3);
-    setValue(self.items.currentL3);
-    setValue(self.items.powerL3);
-    setValue(self.items.reactivePowerL3);
-    setValue(self.items.apparentPowerL3);
-    setValue(self.items.voltageUnbalanceL3);
-    setValue(self.items.currentUnbalanceL3);
-    setValue(self.items.phaseL3);
-    setValue(self.items.powerFactorL3);
-    setValue(self.items.powerTHDL3);
+    setValue(self.items.tHDAverage);
+    setValue(self.items.lGCLeakageCurrent);
+    setValue(self.items.lGRLeakageCurrent);
+    setValue(self.items.l1Voltage);
+    setValue(self.items.l1Current);
+    setValue(self.items.l1Power);
+    setValue(self.items.l1ReactivePower);
+    setValue(self.items.l1ApparentPower);
+    setValue(self.items.l1VoltageUnbalance);
+    setValue(self.items.l1CurrentUnbalance);
+    setValue(self.items.l1Phase);
+    setValue(self.items.l1PowerFactor);
+    setValue(self.items.l1PowerTHD);
+    setValue(self.items.l2Voltage);
+    setValue(self.items.l2Current);
+    setValue(self.items.l2Power);
+    setValue(self.items.l2ReactivePower);
+    setValue(self.items.l2ApparentPower);
+    setValue(self.items.l2VoltageUnbalance);
+    setValue(self.items.l2CurrentUnbalance);
+    setValue(self.items.l2Phase);
+    setValue(self.items.l2PowerFactor);
+    setValue(self.items.l2PowerTHD);
+    setValue(self.items.l3Voltage);
+    setValue(self.items.l3Current);
+    setValue(self.items.l3Power);
+    setValue(self.items.l3ReactivePower);
+    setValue(self.items.l3ApparentPower);
+    setValue(self.items.l3VoltageUnbalance);
+    setValue(self.items.l3CurrentUnbalance);
+    setValue(self.items.l3Phase);
+    setValue(self.items.l3PowerFactor);
+    setValue(self.items.l3PowerTHD);
 
     setValue(self.items.energy);
     setValue(self.items.thisMonthEnergy);
@@ -199,23 +208,24 @@ function Gems35xxFeeder (parent, id) {
     setValue(self.items.thisMonthApparentEnergy);
     setValue(self.items.lastMonthApparentEnergy);
 
-    setValue(self.items.demandCurrentL1);
-    setValue(self.items.demandMaxCurrentL1);
-    setValue(self.items.demandPowerL1);
-    setValue(self.items.demandMaxPowerL1);
-    setValue(self.items.demandCurrentL2);
-    setValue(self.items.demandMaxCurrentL2);
-    setValue(self.items.demandPowerL2);
-    setValue(self.items.demandMaxPowerL2);
-    setValue(self.items.demandCurrentL3);
-    setValue(self.items.demandMaxCurrentL3);
-    setValue(self.items.demandPowerL3);
-    setValue(self.items.demandMaxPowerL3);
+    setValue(self.items.l1DemandCurrent);
+    setValue(self.items.l1DemandMaxCurrent);
+    setValue(self.items.l1DemandPower);
+    setValue(self.items.l1DemandMaxPower);
+    setValue(self.items.l2DemandCurrent);
+    setValue(self.items.l2DemandMaxCurrent);
+    setValue(self.items.l2DemandPower);
+    setValue(self.items.l2DemandMaxPower);
+    setValue(self.items.l3DemandCurrent);
+    setValue(self.items.l3DemandMaxCurrent);
+    setValue(self.items.l3DemandPower);
+    setValue(self.items.l3DemandMaxPower);
     setValue(self.items.demandCurrent);
     setValue(self.items.demandMaxCurrent);
     setValue(self.items.demandPower);
     setValue(self.items.demandMaxPower);
     setValue(self.items.demandPredictionPower);
+
   });
 }
 

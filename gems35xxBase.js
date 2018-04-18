@@ -45,22 +45,22 @@ function Gems35xxBase (parent) {
   self.sensors = {
     temperature:    { value: undefined, registered: false, address: 30001, type: 'readUInt16BE', converter: TemperatureConverter },
     frequency:      { value: undefined, registered: false, address: 30002, type: 'readUInt16BE', converter: FrequencyConverter},
-    V123LNAverage:  { value: undefined, registered: false, address: 30064, type: 'readUInt32BE', converter: ValueConverter},
-    V123LLAverage:  { value: undefined, registered: false, address: 30066, type: 'readUInt32BE', converter: ValueConverter},
-    V123LNUnbalance:{ value: undefined, registered: false, address: 30068, type: 'readUInt16BE', converter: ValueConverter},
-    V123LLUnbalance:{ value: undefined, registered: false, address: 30069, type: 'readUInt16BE', converter: ValueConverter},
-    V1:             { value: undefined, registered: false, address: 30070, type: 'readUInt32BE', converter: ValueConverter},
-    V12:            { value: undefined, registered: false, address: 30072, type: 'readUInt32BE', converter: ValueConverter},
-    V1Unbalance:    { value: undefined, registered: false, address: 30074, type: 'readUInt16BE', converter: ValueConverter},
-    V12Unbalance:   { value: undefined, registered: false, address: 30075, type: 'readUInt16BE', converter: ValueConverter},
-    V2:             { value: undefined, registered: false, address: 30076, type: 'readUInt32BE', converter: ValueConverter},
-    V23:            { value: undefined, registered: false, address: 30078, type: 'readUInt32BE', converter: ValueConverter},
-    V2Unbalance:    { value: undefined, registered: false, address: 30080, type: 'readUInt16BE', converter: ValueConverter},
-    V23Unbalance:   { value: undefined, registered: false, address: 30081, type: 'readUInt16BE', converter: ValueConverter},
-    V3:             { value: undefined, registered: false, address: 30082, type: 'readUInt32BE', converter: ValueConverter},
-    V31:            { value: undefined, registered: false, address: 30084, type: 'readUInt32BE', converter: ValueConverter},
-    V3Unbalance:    { value: undefined, registered: false, address: 30086, type: 'readUInt16BE', converter: ValueConverter},
-    V31Unbalance:   { value: undefined, registered: false, address: 30087, type: 'readUInt16BE', converter: ValueConverter}  
+    v123LNVoltageAverage:  { value: undefined, registered: false, address: 30064, type: 'readUInt32BE', converter: ValueConverter},
+    v123LLVoltageAverage:  { value: undefined, registered: false, address: 30066, type: 'readUInt32BE', converter: ValueConverter},
+    v123LNVoltageUnbalance:{ value: undefined, registered: false, address: 30068, type: 'readUInt16BE', converter: ValueConverter},
+    v123LLVoltageUnbalance:{ value: undefined, registered: false, address: 30069, type: 'readUInt16BE', converter: ValueConverter},
+    v1Voltage:            { value: undefined, registered: false, address: 30070, type: 'readUInt32BE', converter: ValueConverter},
+    v12Voltage:           { value: undefined, registered: false, address: 30072, type: 'readUInt32BE', converter: ValueConverter},
+    v1VoltageUnbalance:    { value: undefined, registered: false, address: 30074, type: 'readUInt16BE', converter: ValueConverter},
+    v12VoltageUnbalance:   { value: undefined, registered: false, address: 30075, type: 'readUInt16BE', converter: ValueConverter},
+    v2Voltage:             { value: undefined, registered: false, address: 30076, type: 'readUInt32BE', converter: ValueConverter},
+    v23Voltage:            { value: undefined, registered: false, address: 30078, type: 'readUInt32BE', converter: ValueConverter},
+    v2VoltageUnbalance:    { value: undefined, registered: false, address: 30080, type: 'readUInt16BE', converter: ValueConverter},
+    v23VoltageUnbalance:   { value: undefined, registered: false, address: 30081, type: 'readUInt16BE', converter: ValueConverter},
+    v3Voltage:             { value: undefined, registered: false, address: 30082, type: 'readUInt32BE', converter: ValueConverter},
+    v31Voltage:            { value: undefined, registered: false, address: 30084, type: 'readUInt32BE', converter: ValueConverter},
+    v3VoltageUnbalance:    { value: undefined, registered: false, address: 30086, type: 'readUInt16BE', converter: ValueConverter},
+    v31VoltageUnbalance:   { value: undefined, registered: false, address: 30087, type: 'readUInt16BE', converter: ValueConverter}  
   };
 
   self.actuators={
@@ -87,22 +87,22 @@ function Gems35xxBase (parent) {
 
     setValue(self.sensors.temperature);
     setValue(self.sensors.frequency);
-    setValue(self.sensors.V123LNAverage);
-    setValue(self.sensors.V123LLAverage);
-    setValue(self.sensors.V123LNUnbalance);
-    setValue(self.sensors.V123LLUnbalance);
-    setValue(self.sensors.V1);
-    setValue(self.sensors.V12);
-    setValue(self.sensors.V1Unbalance);
-    setValue(self.sensors.V12Unbalance);
-    setValue(self.sensors.V2);
-    setValue(self.sensors.V23);
-    setValue(self.sensors.V2Unbalance);
-    setValue(self.sensors.V23Unbalance);
-    setValue(self.sensors.V3);
-    setValue(self.sensors.V31);
-    setValue(self.sensors.V3Unbalance);
-    setValue(self.sensors.V31Unbalance);
+    setValue(self.sensors.v123LNVoltageAverage);
+    setValue(self.sensors.v123llvoltageaverage);
+    setvalue(self.sensors.v123LNVoltageUnbalance);
+    setValue(self.sensors.v123LLVoltageUnbalance);
+    setValue(self.sensors.v1Voltage);
+    setValue(self.sensors.v12Voltage);
+    setValue(self.sensors.v1VoltageUnbalance);
+    setValue(self.sensors.v12VoltageUnbalance);
+    setValue(self.sensors.v2Voltage);
+    setValue(self.sensors.v23Voltage);
+    setValue(self.sensors.v2VoltageUnbalance);
+    setValue(self.sensors.v23VoltageUnbalance);
+    setValue(self.sensors.v3Voltage);
+    setValue(self.sensors.v31Voltage);
+    setValue(self.sensors.v3VoltageUnbalance);
+    setValue(self.sensors.v31VoltageUnbalance);
     setValue(self.actuators.demandReset);
   });
 
