@@ -6,6 +6,7 @@ function initDrivers() {
   var gems35xxBaseActuator;
   var gems35xxBaseSensor;
   var gems35xxFeederSensor;
+  var gems3512FeederSensor;
 
   try {
     gems35xxBaseActuator = require('./driver/gems35xxBaseActuator');
@@ -25,10 +26,17 @@ function initDrivers() {
     logger.error('Cannot load ./driver/gems35xxFeederSensor', e);
   }
 
+  try {
+    gems3512FeederSensor = require('./driver/gems3512FeederSensor');
+  } catch(e) {
+    logger.error('Cannot load ./driver/gems3512FeederSensor', e);
+  }
+
   return {
     gems35xxBaseActuator: gems35xxBaseActuator,
     gems35xxBaseSensor: gems35xxBaseSensor,
-    gems35xxFeederSensor: gems35xxFeederSensor
+    gems35xxFeederSensor: gems35xxFeederSensor,
+    gems3512FeederSensor: gems3512FeederSensor
   };
 }
 
@@ -84,6 +92,10 @@ module.exports = {
       'gems35xxDemandPower',
       'gems35xxDemandMaxPower',
       'gems35xxDemandPredictionPower'
+    ],
+    gems3512FeederSensor: [
+      'gems3512FeederType',
+      'gems3512LeakageCurrent'
     ]
   },
   initNetworks: initNetworks,
