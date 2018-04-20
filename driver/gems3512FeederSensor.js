@@ -18,6 +18,7 @@ function Gems3512FeederSensor(sensorInfo, options) {
   self.port = tokens[1].split(':')[1];
   self.feedId = tokens[1].split(':')[2]
   self.field = tokens[2];
+  self.onChange = false;
 
   self.parent = Gems3512Feeder.create(self.address, self.port, self.feedId);
 
@@ -58,15 +59,14 @@ Gems3512FeederSensor.properties = {
 Gems3512FeederSensor.prototype._get = function (cb) {
   var self = this;
 
-
   logger.debug('Called _get():', self.id);
 
- var values = self.parent.getValues(self);
- if (values == undefined)  {
-   var result = {
-     status: 'on',
-     id: self.id,
-     result: {},
+  var values = self.parent.getValues(self);
+  if (values == undefined) {
+    var result = {
+      status: 'on',
+      id: self.id,
+      result: {},
      time: {}
    };
   self.emit('data', result);

@@ -50,21 +50,22 @@ function Gems3512Feeder (parent, id) {
     }
   ];
   self.items = {
-    type:               { value: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 0,  type: 'readUInt16BE', converter: FeederType },
-     leakageCurrent:    { value: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 2,  type: 'readUInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.01 }},
-    lGRLeakageCurrent:  { value: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 4, type: 'readInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.1 }},
-    lGCLeakageCurrent:  { value: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 6, type: 'readInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.1 }},
+    type:               { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 0,  type: 'readUInt16BE', converter: FeederType },
+     leakageCurrent:    { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 2,  type: 'readUInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.01 }},
+    lGRLeakageCurrent:  { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 4, type: 'readInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.1 }},
+    lGCLeakageCurrent:  { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 6, type: 'readInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.1 }},
   };
 
   self.on('done', function (startAddress, count, registers) {
     function setValue (item) {
       if (startAddress <= item.address && item.address < startAddress + count*2) {
         var value;
-          var result = {
+        var time = _.now();
+        var result = {
             status: 'on',
             id: item.sensor.id,
             values: []
-          };
+        };
 
         var buffer = new Buffer(4);
 
@@ -74,7 +75,7 @@ function Gems3512Feeder (parent, id) {
         if (item.converter != undefined) {
           value = item.converter(buffer[item.type](0) || 0);
         }
-        if (item.scaleConversion != undefined) {
+        else if (item.scaleConversion != undefined) {
           value = item.scaleConversion.converter((buffer[item.type](0) || 0), item.scaleConversion.scale);
         }
         else {
@@ -85,15 +86,18 @@ function Gems3512Feeder (parent, id) {
             item.values.shift();
         }
 
-        item.values.push({value: value, time: _.now()});
+        item.values.push({value: value, time: time});
 
-        if (item.sensor != undefined && ((item.value == undefined) || (Math.abs(item.value - value) >= 1) || (item.values.length >= 6))) {
-          result.values = item.values;
-          item.sensor.emit('change_array', result);
-          item.values = [];
+        if (item.sensor != undefined) {
+          if ((item.value == undefined) || (Math.abs(item.value - value) >= 1)) {
+            result.values = item.values;
+            item.sensor.emit('change_array', result);
+            item.values = [];
+          }
         }
 
         item.value = value;
+        item.time  = time;
       }
     };
 
