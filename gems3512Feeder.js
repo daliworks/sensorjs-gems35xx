@@ -89,7 +89,7 @@ function Gems3512Feeder (parent, id) {
         item.values.push({value: value, time: time});
 
         if (item.sensor != undefined) {
-          if ((item.value == undefined) || (Math.abs(item.value - value) >= 1)) {
+          if ((item.value == undefined) || (Math.abs(item.value - value) >= 1) || (item.values.length >= 6)) {
             result.values = item.values;
             item.sensor.emit('change_array', result);
             item.values = [];

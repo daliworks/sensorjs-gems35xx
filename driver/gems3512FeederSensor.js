@@ -61,12 +61,12 @@ Gems3512FeederSensor.prototype._get = function (cb) {
 
   logger.debug('Called _get():', self.id);
 
-  var values = self.parent.getValues(self);
-  if (values == undefined) {
-    var result = {
-      status: 'on',
-      id: self.id,
-      result: {},
+ var values = self.parent.getValues(self);
+ if (values == undefined)  {
+   var result = {
+     status: 'on',
+     id: self.id,
+     result: {},
      time: {}
    };
   self.emit('data', result);
