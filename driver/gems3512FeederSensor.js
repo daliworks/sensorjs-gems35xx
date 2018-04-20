@@ -32,7 +32,7 @@ function Gems3512FeederSensor(sensorInfo, options) {
 util.inherits(Gems3512FeederSensor, Sensor);
 
 Gems3512FeederSensor.properties = {
-  supportedNetworks: ['gems35xx-feeder-modbus-tcp'],
+  supportedNetworks: ['gems3512-feeder-modbus-tcp'],
   dataTypes: {
     'gems3512FeederType' : ['string'],
     'gems3512LeakageCurrent' : ['current']
@@ -45,11 +45,11 @@ Gems3512FeederSensor.properties = {
   idTemplate: '{gatewayId}-{deviceAddress}-{sequence}',
   onChange: {
     'gems3512FeederType': false,
-    'gems3512LeakageCurrent' : false
+    'gems3512LeakageCurrent' : true 
   },
   models: [
     'gems3512FeederType',
-    'gems3512LeakageCurrent'
+    'gems3512LeakageCurrent',
   ],
   category: 'sensor'
 };
