@@ -54,112 +54,112 @@ function Gems35xxBase(parent) {
       type: 'readUInt16BE',
       converter: FrequencyConverter
     },
-    v123LNVoltageAverage: {
+    v123LNAverage: {
       value: undefined,
       registered: false,
       address: 30064,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v123LLVoltageAverage: {
+    v123LLAverage: {
       value: undefined,
       registered: false,
       address: 30066,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v123LNVoltageUnbalance: {
+    v123LNUnbalance: {
       value: undefined,
       registered: false,
       address: 30068,
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    v123LLVoltageUnbalance: {
+    v123LLUnbalance: {
       value: undefined,
       registered: false,
       address: 30069,
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    v1Voltage: {
+    v1: {
       value: undefined,
       registered: false,
       address: 30070,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v12Voltage: {
+    v12: {
       value: undefined,
       registered: false,
       address: 30072,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v1VoltageUnbalance: {
+    v1Unbalance: {
       value: undefined,
       registered: false,
       address: 30074,
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    v12VoltageUnbalance: {
+    v12Unbalance: {
       value: undefined,
       registered: false,
       address: 30075,
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    v2Voltage: {
+    v2: {
       value: undefined,
       registered: false,
       address: 30076,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v23Voltage: {
+    v23: {
       value: undefined,
       registered: false,
       address: 30078,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v2VoltageUnbalance: {
+    v2Unbalance: {
       value: undefined,
       registered: false,
       address: 30080,
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    v23VoltageUnbalance: {
+    v23Unbalance: {
       value: undefined,
       registered: false,
       address: 30081,
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    v3Voltage: {
+    v3: {
       value: undefined,
       registered: false,
       address: 30082,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v31Voltage: {
+    v31: {
       value: undefined,
       registered: false,
       address: 30084,
       type: 'readUInt32BE',
       converter: ValueConverter
     },
-    v3VoltageUnbalance: {
+    v3Unbalance: {
       value: undefined,
       registered: false,
       address: 30086,
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    v31VoltageUnbalance: {
+    v31Unbalance: {
       value: undefined,
       registered: false,
       address: 30087,
@@ -198,22 +198,22 @@ function Gems35xxBase(parent) {
 
     setValue(self.sensors.temperature);
     setValue(self.sensors.frequency);
-    setValue(self.sensors.v123LNVoltageAverage);
-    setValue(self.sensors.v123LLVoltageAverage);
-    setvalue(self.sensors.v123LNVoltageUnbalance);
-    setValue(self.sensors.v123LLVoltageUnbalance);
-    setValue(self.sensors.v1Voltage);
-    setValue(self.sensors.v12Voltage);
-    setValue(self.sensors.v1VoltageUnbalance);
-    setValue(self.sensors.v12VoltageUnbalance);
-    setValue(self.sensors.v2Voltage);
-    setValue(self.sensors.v23Voltage);
-    setValue(self.sensors.v2VoltageUnbalance);
-    setValue(self.sensors.v23VoltageUnbalance);
-    setValue(self.sensors.v3Voltage);
-    setValue(self.sensors.v31Voltage);
-    setValue(self.sensors.v3VoltageUnbalance);
-    setValue(self.sensors.v31VoltageUnbalance);
+    setValue(self.sensors.v123LNAverage);
+    setValue(self.sensors.v123LLAverage);
+    setvalue(self.sensors.v123LNUnbalance);
+    setValue(self.sensors.v123LLUnbalance);
+    setValue(self.sensors.v1);
+    setValue(self.sensors.v12);
+    setValue(self.sensors.v1Unbalance);
+    setValue(self.sensors.v12Unbalance);
+    setValue(self.sensors.v2);
+    setValue(self.sensors.v23);
+    setValue(self.sensors.v2Unbalance);
+    setValue(self.sensors.v23Unbalance);
+    setValue(self.sensors.v3);
+    setValue(self.sensors.v31);
+    setValue(self.sensors.v3Unbalance);
+    setValue(self.sensors.v31Unbalance);
     setValue(self.actuators.demandReset);
   });
 

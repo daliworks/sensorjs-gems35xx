@@ -4,7 +4,7 @@ var Sensor = SensorLib.Sensor;
 var logger = Sensor.getLogger('Sensor');
 var gems35xxFeeder = require('../gems35xxFeeder');
 
-function gems35xxFeederSensor(sensorInfo, options) {
+function Gems35xxFeederSensor(sensorInfo, options) {
   var self = this;
   var tokens;
 
@@ -22,13 +22,13 @@ function gems35xxFeederSensor(sensorInfo, options) {
     self.model = sensorInfo.model;
   }
 
-  self.dataType = gems35xxFeederSensor.properties.dataTypes[self.model][0];
+  self.dataType = Gems35xxFeederSensor.properties.dataTypes[self.model][0];
 
   self.parent.registerField(self);
 }
-util.inherits(gems35xxFeederSensor, Sensor);
+util.inherits(Gems35xxFeederSensor, Sensor);
 
-gems35xxFeederSensor.properties = {
+Gems35xxFeederSensor.properties = {
   supportedNetworks: ['gems35xx-feeder-modbus-tcp'],
   dataTypes: {
     'gems35xxFeederType': ['string'],
@@ -112,7 +112,7 @@ gems35xxFeederSensor.properties = {
 };
 
 
-gems35xxFeederSensor.prototype._get = function (cb) {
+Gems35xxFeederSensor.prototype._get = function (cb) {
   var self = this;
   var result = {
     status: 'on',
@@ -134,8 +134,8 @@ gems35xxFeederSensor.prototype._get = function (cb) {
   }
 };
 
-gems35xxFeederSensor.prototype._enableChange = function () {};
+Gems35xxFeederSensor.prototype._enableChange = function () {};
 
-gems35xxFeederSensor.prototype._clear = function () {};
+Gems35xxFeederSensor.prototype._clear = function () {};
 
-module.exports = gems35xxFeederSensor;
+module.exports = Gems35xxFeederSensor;

@@ -109,7 +109,7 @@ function Gems3512Feeder(parent, id) {
         scale: 0.01
       }
     },
-    lGRLeakageCurrent: {
+    leakageCurrentIGR: {
       value: undefined,
       time: undefined,
       values: [],
@@ -123,7 +123,7 @@ function Gems3512Feeder(parent, id) {
         scale: 0.1
       }
     },
-    lGCLeakageCurrent: {
+    leakageCurrentIGC: {
       value: undefined,
       time: undefined,
       values: [],
@@ -198,8 +198,8 @@ function Gems3512Feeder(parent, id) {
     setValue(self.items.leakageCurrent);
     setValue(self.items.leakageCurrentOver);
     setValue(self.items.leakageCurrentAlarm);
-    setValue(self.items.lGCLeakageCurrent);
-    setValue(self.items.lGRLeakageCurrent);
+    setValue(self.items.leakageCurrentIGC);
+    setValue(self.items.leakageCurrentIGR);
   });
 }
 
