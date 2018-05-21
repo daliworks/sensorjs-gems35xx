@@ -2,8 +2,8 @@ var _ = require('lodash');
 var util = require('util');
 var SensorLib = require('../index');
 var gems35xxBase = require('../gems35xxBase');
-var logger = Actuator.getLogger();
 var Actuator = SensorLib.Actuator;
+var logger = Actuator.getLogger('Actuator');
 
 function Gems35xxBaseActuator(sensorInfo, options) {
   var self = this;

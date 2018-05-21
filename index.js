@@ -1,5 +1,3 @@
-'use strict';
-
 var logger = require('log4js').getLogger('Sensor');
 
 function initDrivers() {
@@ -10,25 +8,25 @@ function initDrivers() {
 
   try {
     gems35xxBaseActuator = require('./driver/gems35xxBaseActuator');
-  } catch(e) {
+  } catch (e) {
     logger.error('Cannot load ./driver/gems35xxBaseActuator', e);
   }
 
   try {
     gems35xxBaseSensor = require('./driver/gems35xxBaseSensor');
-  } catch(e) {
+  } catch (e) {
     logger.error('Cannot load ./driver/gems35xxBaseSensor', e);
   }
 
   try {
     gems35xxFeederSensor = require('./driver/gems35xxFeederSensor');
-  } catch(e) {
+  } catch (e) {
     logger.error('Cannot load ./driver/gems35xxFeederSensor', e);
   }
 
   try {
     gems3512FeederSensor = require('./driver/gems3512FeederSensor');
-  } catch(e) {
+  } catch (e) {
     logger.error('Cannot load ./driver/gems3512FeederSensor', e);
   }
 
@@ -60,7 +58,7 @@ module.exports = {
   drivers: {
     gems35xxBaseActuator: [
       'gems35xxDemandReset'
-   ],
+    ],
     gems35xxBaseSensor: [
       'gems35xxBaseTemperature',
       'gems35xxBaseFrequency',
@@ -103,4 +101,3 @@ module.exports = {
   initNetworks: initNetworks,
   initDrivers: initDrivers
 };
-
