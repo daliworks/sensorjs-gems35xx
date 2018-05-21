@@ -1,5 +1,3 @@
-'use strict';
-
 var util = require('util');
 var sensorDriver = require('../../index');
 var Network = sensorDriver.Network;
@@ -11,7 +9,7 @@ function Gems35xxModbusTCP(options) {
 
 util.inherits(Gems35xxModbusTCP, Network);
 
-Gems35xxModbusTCP.prototype.discover = function(networkName, options, cb) {
+Gems35xxModbusTCP.prototype.discover = function (networkName, options, cb) {
   return cb && cb(new Error('Not supported'));
 };
 

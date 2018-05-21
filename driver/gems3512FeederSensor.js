@@ -1,11 +1,8 @@
-'use strict';
-
 var util = require('util');
-
 var SensorLib = require('../index');
 var Sensor = SensorLib.Sensor;
 var logger = Sensor.getLogger('Sensor');
-var Gems3512Feeder = require('../gems3512Feeder');
+var gems3512Feeder = require('../gems3512Feeder');
 
 function Gems3512FeederSensor(sensorInfo, options) {
   var self = this;
@@ -16,7 +13,7 @@ function Gems3512FeederSensor(sensorInfo, options) {
   tokens = self.id.split('-');
   self.address = tokens[1].split(':')[0];
   self.port = tokens[1].split(':')[1];
-  self.feedId = tokens[1].split(':')[2]
+  self.feedId = tokens[1].split(':')[2];
   self.field = tokens[2];
   self.onChange = false;
 
@@ -36,7 +33,9 @@ Gems3512FeederSensor.properties = {
   supportedNetworks: ['gems3512-feeder-modbus-tcp'],
   dataTypes: {
     'gems3512FeederType' : ['string'],
-    'gems3512LeakageCurrent' : ['current']
+    'gems3512LeakageCurrent' : ['current'],
+    'gems3512LeakageCurrentOver' : ['number'],
+    'gems3512LeakageCurrentAlarm' : ['onoff']
   },
   discoverable: false,
   addressable: true,
@@ -46,11 +45,15 @@ Gems3512FeederSensor.properties = {
   idTemplate: '{gatewayId}-{deviceAddress}-{sequence}',
   onChange: {
     'gems3512FeederType': false,
-    'gems3512LeakageCurrent' : true 
+    'gems3512LeakageCurrent' : true,
+    'gems3512LeakageCurrentOver' : true,
+    'gems3512LeakageCurrentAlarm' : true
   },
   models: [
     'gems3512FeederType',
     'gems3512LeakageCurrent',
+    'gems3512LeakageCurrentOver',
+    'gems3512LeakageCurrentAlarm'
   ],
   category: 'sensor'
 };
@@ -58,34 +61,28 @@ Gems3512FeederSensor.properties = {
 
 Gems3512FeederSensor.prototype._get = function (cb) {
   var self = this;
+  var result = {
+    status: 'on',
+    id: self.id
+  };
 
   logger.debug('Called _get():', self.id);
 
- var values = self.parent.getValues(self);
- if (values == undefined)  {
-   var result = {
-     status: 'on',
-     id: self.id,
-     result: {},
-     time: {}
-   };
-  self.emit('data', result);
- }
- else {
-   var result = {
-     status: 'on',
-     id: self.id,
-    values: values
-   };
+  var values = self.parent.getValues(self);
+  if (values == undefined) {
+    result.result = {};
+    result.time = {};
 
-  self.emit('data_array', result);
- }
+    self.emit('data', result);
+  } else {
+    result.values = values;
+
+    self.emit('data_array', result);
+  }
 };
 
-Gems3512FeederSensor.prototype._enableChange = function () {
-};
+Gems3512FeederSensor.prototype._enableChange = function () {};
 
-Gems3512FeederSensor.prototype._clear = function () {
-};
+Gems3512FeederSensor.prototype._clear = function () {};
 
 module.exports = Gems3512FeederSensor;

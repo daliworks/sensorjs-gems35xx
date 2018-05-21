@@ -1,12 +1,9 @@
-'use strict';
-
-var util = require('util');
-
-var SensorLib = require('../index');
-var Actuator = SensorLib.Actuator;
 var _ = require('lodash');
+var util = require('util');
+var SensorLib = require('../index');
+var gems35xxBase = require('../gems35xxBase');
 var logger = Actuator.getLogger();
-var Gems35xxBase = require('../gems35xxBase');
+var Actuator = SensorLib.Actuator;
 
 function Gems35xxBaseActuator(sensorInfo, options) {
   var self = this;
@@ -19,18 +16,17 @@ function Gems35xxBaseActuator(sensorInfo, options) {
   self.port = tokens[1].split(':')[1];
   self.field = tokens[2];
   self.lastTime = 0;
-  
+
   if (sensorInfo.model) {
     self.model = sensorInfo.model;
   }
 
   self.dataType = Gems35xxBaseActuator.properties.dataTypes[self.model][0];
- 
+
   try {
-    self.parent = Gems35xxBase.create(self.address, self.port);
+    self.parent = gems35xxBase.create(self.address, self.port);
     self.parent.register(self);
-  }
-  catch(err) {
+  } catch (err) {
     logger.error(err);
   }
 }
@@ -44,7 +40,7 @@ Gems35xxBaseActuator.properties = {
     'gems35xxDemandReset'
   ],
   commands: {
-    gems35xxDemandReset: [ 'on', 'off' ]
+    gems35xxDemandReset: ['on', 'off']
   },
   discoverable: false,
   addressable: true,
@@ -64,33 +60,31 @@ function sendCommand(actuator, cmd, options, cb) {
   }
 
   logger.trace('sendCommand : ', actuator.deviceAddress, actuator.sequence, cmd, options);
- 
+
   try {
     var settings = JSON.parse(options.settings);
     logger.trace('Settings : ', settings);
 
     cb(undefined, 'Success!');
-  }
-  catch(err) {
+  } catch (err) {
     cb('Invalid JSON format', err);
   }
 }
 
-Gems35xxBaseActuator.prototype._set = function (cmd, options, cb) {
+Gems35xxBaseActuator.prototype._set = function _set(cmd, options, cb) {
   var self = this;
 
-  try{
+  try {
     switch (self.field) {
-    case 'demandReset' : self.parent.emit('demandReset', cb);
+      case 'demandReset':
+        self.parent.emit('demandReset', cb);
     }
-  }
-  catch(err) {
+  } catch (err) {
     return cb && cb(err);
   }
+};
 
-}
-
-Gems35xxBaseActuator.prototype._get = function (cb) {
+Gems35xxBaseActuator.prototype._get = function _get(cb) {
   var self = this;
   var result = {
     status: 'on',
@@ -106,7 +100,7 @@ Gems35xxBaseActuator.prototype._get = function (cb) {
   self.emit('data', result);
 };
 
-Gems35xxBaseActuator.prototype.getStatus = function () {
+Gems35xxBaseActuator.prototype.getStatus = function getStatus() {
   var self = this;
 
   self.myStatus = 'on';
@@ -114,13 +108,13 @@ Gems35xxBaseActuator.prototype.getStatus = function () {
   return self.myStatus;
 };
 
-Gems35xxBaseActuator.prototype.connectListener = function () {
+Gems35xxBaseActuator.prototype.connectListener = function connectListener() {
   var self = this;
 
   self.myStatus = 'on';
 };
 
-Gems35xxBaseActuator.prototype.disconnectListener = function () {
+Gems35xxBaseActuator.prototype.disconnectListener = function disconnectListener() {
   var self = this;
 
   var rtn = {

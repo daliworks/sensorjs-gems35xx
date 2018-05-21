@@ -1,5 +1,3 @@
-'use strict';
-
 var net = require('net');
 var util = require('util');
 var _ = require('lodash');
@@ -10,31 +8,52 @@ var Gems35xx = require('./gems35xx');
 var logger = require('./index').Sensor.getLogger('Sensor');
 
 
-function  FeederType(value) {
-  switch(value) {
-    case  0:  return  'Not Used';
-    case  1:  return  '1P2W_R(1P3W_RN)';
-    case  2:  return  '1P2W_S(1P3W_RS)';
-    case  3:  return  '1P2W_T(1P3W_SN)';
-    case  4:  return  '3P2W_2CT';
-    case  5:  return  '3P4W';
-    case  6:  return  'ZCT';
-    case  7:  return  '3P3W_3CT';
-    case  8:  return  '1P3W_2CT';
+function FeederType(value) {
+  switch (value) {
+    case 0:
+      return 'Not Used';
+    case 1:
+      return '1P2W_R(1P3W_RN)';
+    case 2:
+      return '1P2W_S(1P3W_RS)';
+    case 3:
+      return '1P2W_T(1P3W_SN)';
+    case 4:
+      return '3P2W_2CT';
+    case 5:
+      return '3P4W';
+    case 6:
+      return 'ZCT';
+    case 7:
+      return '3P3W_3CT';
+    case 8:
+      return '1P3W_2CT';
   }
 
-  return  'Unknown';
- }
-
-function  scaleConverter(value, scale) {
-  if (scale != undefined) {
-    return  value * scale;
-  }
-
-  return  value;
+  return 'Unknown';
 }
 
-function Gems3512Feeder (parent, id) {
+function scaleConverter(value, scale) {
+  if (scale != undefined) {
+    return value * scale;
+  }
+
+  return value;
+}
+
+function scaleConverter3(value, scale) {
+  if (scale != undefined) {
+    value = value * scale;
+  }
+
+  if (value >= 10) {
+    return 1;
+  }
+
+  return 0;
+}
+
+function Gems3512Feeder(parent, id) {
   var self = this;
 
   EventEmitter.call(self);
@@ -43,30 +62,88 @@ function Gems3512Feeder (parent, id) {
   self.parent = parent;
   self.run = false;
   self.interval = 10000;
-  self.addressSet = [
-    {
-      address : 39012 + (id - 1) * 18,
-      count : 18 
-    }
-  ];
+  self.addressSet = [{
+    address: 39012 + (id - 1) * 18,
+    count: 18
+  }];
   self.items = {
-    type:               { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 0,  type: 'readUInt16BE', converter: FeederType },
-     leakageCurrent:    { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 2,  type: 'readUInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.01 }},
-    lGRLeakageCurrent:  { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 4, type: 'readInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.1 }},
-    lGCLeakageCurrent:  { value: undefined, time: undefined, values: [], sensor: undefined, registered: false, address: 39012 + (id - 1) * 18 + 6, type: 'readInt32BE', scaleConversion: { converter: scaleConverter, scale: 0.1 }},
+    leakageCurrent: {
+      value: undefined,
+      time: undefined,
+      values: [],
+      sensor: undefined,
+      event: true,
+      registered: false,
+      address: 39012 + (id - 1) * 18 + 2,
+      type: 'readUInt32BE',
+      scaleConversion: {
+        converter: scaleConverter,
+        scale: 0.01
+      }
+    },
+    leakageCurrentOver: {
+      value: undefined,
+      time: undefined,
+      values: [],
+      sensor: undefined,
+      event: true,
+      registered: false,
+      address: 39012 + (id - 1) * 18 + 2,
+      type: 'readUInt32BE',
+      scaleConversion: {
+        converter: scaleConverter,
+        scale: 0.01
+      }
+    },
+    leakageCurrentAlarm: {
+      value: undefined,
+      time: undefined,
+      values: [],
+      sensor: undefined,
+      event: true,
+      registered: false,
+      address: 39012 + (id - 1) * 18 + 2,
+      type: 'readUInt32BE',
+      scaleConversion: {
+        converter: scaleConverter3,
+        scale: 0.01
+      }
+    },
+    lGRLeakageCurrent: {
+      value: undefined,
+      time: undefined,
+      values: [],
+      sensor: undefined,
+      event: true,
+      registered: false,
+      address: 39012 + (id - 1) * 18 + 4,
+      type: 'readInt32BE',
+      scaleConversion: {
+        converter: scaleConverter,
+        scale: 0.1
+      }
+    },
+    lGCLeakageCurrent: {
+      value: undefined,
+      time: undefined,
+      values: [],
+      sensor: undefined,
+      event: true,
+      registered: false,
+      address: 39012 + (id - 1) * 18 + 6,
+      type: 'readInt32BE',
+      scaleConversion: {
+        converter: scaleConverter,
+        scale: 0.1
+      }
+    }
   };
 
   self.on('done', function (startAddress, count, registers) {
-    function setValue (item) {
-      if (startAddress <= item.address && item.address < startAddress + count*2) {
+    function setValue(item) {
+      if (startAddress <= item.address && item.address < startAddress + count * 2) {
         var value;
         var time = _.now();
-        var result = {
-            status: 'on',
-            id: item.sensor.id,
-            values: []
-        };
-
         var buffer = new Buffer(4);
 
         registers[item.address - startAddress].copy(buffer, 0);
@@ -74,34 +151,53 @@ function Gems3512Feeder (parent, id) {
 
         if (item.converter != undefined) {
           value = item.converter(buffer[item.type](0) || 0);
-        }
-        else if (item.scaleConversion != undefined) {
+        } else if (item.scaleConversion != undefined) {
           value = item.scaleConversion.converter((buffer[item.type](0) || 0), item.scaleConversion.scale);
-        }
-        else {
+        } else {
           value = (buffer[item.type](0) || 0);
         }
 
-        if (item.values.length > 100) {
+        var result = {
+          status: 'on',
+          id: item.sensor.id
+        };
+
+        if (item.event == false) {
+          result.result = {};
+          result.time = {};
+
+          result.result[item.sensor.dataType] = value;
+          result.time[item.sensor.dataType] = time;
+
+          item.sensor.emit('data', result);
+        } else {
+          result.values = [];
+
+          if (item.values.length > 100) {
             item.values.shift();
-        }
+          }
+          item.values.push({
+            value: value,
+            time: time
+          });
 
-        item.values.push({value: value, time: time});
-
-        if (item.sensor != undefined) {
-          if ((item.value == undefined) || (Math.abs(item.value - value) >= 1) || (item.values.length >= 6)) {
-            result.values = item.values;
-            item.sensor.emit('change_array', result);
-            item.values = [];
+          if (item.sensor != undefined) {
+            if ((item.value == undefined) || (Math.abs(item.value - value) >= 1) || (item.values.length >= 30)) {
+              result.values = item.values;
+              item.sensor.emit('change_array', result);
+              item.values = [];
+            }
           }
         }
 
         item.value = value;
-        item.time  = time;
+        item.time = time;
       }
-    };
+    }
 
     setValue(self.items.leakageCurrent);
+    setValue(self.items.leakageCurrentOver);
+    setValue(self.items.leakageCurrentAlarm);
     setValue(self.items.lGCLeakageCurrent);
     setValue(self.items.lGRLeakageCurrent);
   });
@@ -116,35 +212,34 @@ function Gems3512FeederCreate(address, port, id) {
   if (gems3512Feeder == undefined) {
     gems3512Feeder = new Gems3512Feeder(gems35xx, id);
     gems35xx.addChild(gems3512Feeder);
- }
+  }
 
-  return  gems3512Feeder;
+  return gems3512Feeder;
 }
 
-Gems3512Feeder.prototype.registerField = function(sensor) {
+Gems3512Feeder.prototype.registerField = function (sensor) {
   var self = this;
 
   if (self.items[sensor.field] != undefined) {
     self.items[sensor.field].sensor = sensor;
     self.items[sensor.field].registered = true;
     self.parent.run();
-  }
-  else{
+  } else {
     logger.error('Undefined feeder field tried to register : ', sensor.field);
     logger.error(self.items);
   }
-}
+};
 
 Gems3512Feeder.prototype.getValue = function (sensor) {
   var self = this;
 
   if (self.items[sensor.field] != undefined) {
-    return  self.items[sensor.field].value;
+    return self.items[sensor.field].value;
   }
 
   logger.error('Tried to get value of undefined feeder field : ', sensor.field);
-  return  undefined;
-}
+  return undefined;
+};
 
 Gems3512Feeder.prototype.getValues = function (sensor) {
   var self = this;
@@ -153,12 +248,12 @@ Gems3512Feeder.prototype.getValues = function (sensor) {
   if (self.items[sensor.field] != undefined) {
     values = self.items[sensor.field].values;
     self.items[sensor.field].values = [];
-    return  values;
+    return values;
   }
 
   logger.error('Tried to get value of undefined feeder field : ', sensor.field);
-  return  undefined;
-}
+  return undefined;
+};
 
 module.exports = {
   create: Gems3512FeederCreate

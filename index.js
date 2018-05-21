@@ -95,7 +95,9 @@ module.exports = {
     ],
     gems3512FeederSensor: [
       'gems3512FeederType',
-      'gems3512LeakageCurrent'
+      'gems3512LeakageCurrent',
+      'gems3512LeakageCurrentOver',
+      'gems3512LeakageCurrentAlarm'
     ]
   },
   initNetworks: initNetworks,

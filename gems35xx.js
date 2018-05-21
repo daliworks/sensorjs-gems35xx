@@ -1,5 +1,3 @@
-'use strict';
-
 var net = require('net');
 var util = require('util');
 var _ = require('lodash');
@@ -18,7 +16,7 @@ try {
 
 var MODBUS_UNIT_ID = 1;
 var RETRY_OPEN_INTERVAL = 3000; // 3sec
-var GEMS35XX_REGISTER_UPDATE_INTERVAL = 10000;
+var GEMS35XX_REGISTER_UPDATE_INTERVAL = 2000;
 
 var gems35xxList = [];
 
@@ -37,14 +35,12 @@ function readValue(task, done) {
     readRegisters = client.readInputRegisters;
     from = task.registerAddress - 30000;
     to = from + task.registerCount;
-  }
-  else if (40000 <= task.registerAddress && task.registerAddress <= 49999) {
+  } else if (40000 <= task.registerAddress && task.registerAddress <= 49999) {
     readRegisters = client.readHoldingRegisters;
     from = task.registerAddress - 40000;
     to = from + task.registerCount;
-  }
-  else {
-    return  done('Invalid address : ', task.registerAddress);
+  } else {
+    return done('Invalid address : ', task.registerAddress);
   }
 
   logger.debug('readValue() registerAddress:', task.registerAddress);
@@ -118,13 +114,13 @@ function writeValue(task, done) {
   });
 }
 
-function Gems35xx (address, port) {
+function Gems35xx(address, port) {
   var self = this;
 
   self.interval = GEMS35XX_REGISTER_UPDATE_INTERVAL;
   self.intervalHandler = undefined;
   self.address = address;
-  self.port    = port;
+  self.port = port;
   self.children = [];
   self.readQueue = async.queue(readValue);
   self.readQueue.drain = function () {
@@ -142,13 +138,13 @@ function Gems35xx (address, port) {
 
 util.inherits(Gems35xx, EventEmitter);
 
-function  Gems35xxCreate(address, port) {
+function Gems35xxCreate(address, port) {
   var gems35xx;
 
   gems35xx = Gems35xxGet(address, port);
   if (gems35xx == undefined) {
     logger.debug('New GEMS35xx is created!');
-    gems35xx = new Gems35xx(address, port) ;
+    gems35xx = new Gems35xx(address, port);
     gems35xxList.push(gems35xx);
 
     logger.debug('Trying connection:', address);
@@ -181,27 +177,27 @@ function  Gems35xxCreate(address, port) {
     });
   }
 
-  return  gems35xx;
+  return gems35xx;
 }
 
-function  Gems35xxGet(address, port) {
+function Gems35xxGet(address, port) {
   var i;
   var gems35xx;
 
-  for(i = 0 ; i < gems35xxList.length ; i++) {
+  for (i = 0; i < gems35xxList.length; i++) {
     if ((gems35xxList[i].address == address) && (gems35xxList[i].port == port)) {
-      return  gems35xxList[i];
+      return gems35xxList[i];
     }
   }
 
-  return  undefined;
+  return undefined;
 }
 
-Gems35xx.prototype.addChild = function(child) {
+Gems35xx.prototype.addChild = function (child) {
   var self = this;
 
   self.children.push(child);
-}
+};
 
 Gems35xx.prototype.getChild = function (id) {
   var self = this;
@@ -213,45 +209,49 @@ Gems35xx.prototype.getChild = function (id) {
     }
   }
 
-  return  undefined;
-}
+  return undefined;
+};
 
-Gems35xx.prototype.run = function() {
+Gems35xx.prototype.run = function () {
   var self = this;
 
   if (self.intervalHandler != undefined) {
     return;
   }
 
-  self.intervalHandler = setInterval(function() {
+  self.intervalHandler = setInterval(function () {
     if (self.client != undefined) {
       self.children.map(function (child) {
         var i;
+
+        function readDoneCB(err, address, count, registers) {
+          if (err == undefined) {
+            child.emit('done', address, count, registers);
+          }
+        }
+
+        function pushCB(err) {
+          if (err) {
+            logger.error('pushCB error: ', err);
+          }
+        }
 
         for (i = 0; i < child.addressSet.length; i++) {
           var callArgs = {
             client: self.client,
             registerAddress: child.addressSet[i].address,
             registerCount: child.addressSet[i].count,
-            readCb: function (err, address, count, registers) {
-              if (err == undefined) {
-                child.emit('done', address, count, registers)
-              }
-            }
+            readCb: readDoneCB
           };
 
-          self.readQueue.push(callArgs, function pushCb(err) {
-            if (err) {
-              logger.error('pushCB error: ', err);
-            }
-          });
+          self.readQueue.push(callArgs, pushCB);
         }
       });
     }
   }, self.interval);
 
   self.isRun = true;
-}
+};
 
 Gems35xx.prototype.getValue = function (id, field) {
   var self = this;
@@ -264,22 +264,21 @@ Gems35xx.prototype.getValue = function (id, field) {
   if (id != 0) {
     var feeder = self.getChild(id);
     if (feeder != undefined) {
-      return  feeder.getValue(field);
-    }
-    else {
-      return  undefined;
+      return feeder.getValue(field);
+    } else {
+      return undefined;
     }
   }
 
   var i;
-  for(i = 0 ; i < self.items.length ; i++) {
+  for (i = 0; i < self.items.length; i++) {
     if (self.items[i].field == field) {
-      return  self.items[i].value;
+      return self.items[i].value;
     }
   }
 
-  return  undefined;
-}
+  return undefined;
+};
 
 Gems35xx.prototype.setValue = function (address, count, registers, cb) {
   var self = this;
@@ -289,7 +288,7 @@ Gems35xx.prototype.setValue = function (address, count, registers, cb) {
       client: self.client,
       registerAddress: address,
       registerCount: count,
-      data : registers,
+      data: registers,
       writeCb: cb
     };
 
@@ -298,13 +297,12 @@ Gems35xx.prototype.setValue = function (address, count, registers, cb) {
         logger.error('pushCB error: ', err);
       }
     });
-  } 
-  else {
+  } else {
     logger.debug('Client is undefined.');
   }
-}
+};
 
 module.exports = {
   create: Gems35xxCreate,
-  get:  Gems35xxGet
+  get: Gems35xxGet
 };
