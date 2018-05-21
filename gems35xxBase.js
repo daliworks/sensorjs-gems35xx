@@ -200,7 +200,7 @@ function Gems35xxBase(parent) {
     setValue(self.sensors.frequency);
     setValue(self.sensors.v123LNAverage);
     setValue(self.sensors.v123LLAverage);
-    setvalue(self.sensors.v123LNUnbalance);
+    setValue(self.sensors.v123LNUnbalance);
     setValue(self.sensors.v123LLUnbalance);
     setValue(self.sensors.v1);
     setValue(self.sensors.v12);

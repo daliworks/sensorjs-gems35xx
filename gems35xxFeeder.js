@@ -140,7 +140,7 @@ function Gems35xxFeeder(parent, id) {
       type: 'readUInt16BE',
       converter: ValueConverter
     },
-    lGCLeakageCurrent: {
+    leakageCurrentIGC: {
       value: undefined,
       values: [],
       registered: false,
@@ -148,7 +148,7 @@ function Gems35xxFeeder(parent, id) {
       type: 'readUInt16BE',
       converter: leakageCurrentConverter
     },
-    lGRLeakageCurrent: {
+    leakageCurrentIGR: {
       value: undefined,
       values: [],
       registered: false,
@@ -642,8 +642,8 @@ function Gems35xxFeeder(parent, id) {
     setValue(self.items.pFAverage);
     setValue(self.items.currentUnbalance);
     setValue(self.items.tHDAverage);
-    setValue(self.items.lGCCurrent);
-    setValue(self.items.lGRCurrent);
+  //setValue(self.items.leakageCurrentIGR);
+  //setValue(self.items.leakageCurrentIGC);
     setValue(self.items.l1Voltage);
     setValue(self.items.l1Current);
     setValue(self.items.l1Power);
