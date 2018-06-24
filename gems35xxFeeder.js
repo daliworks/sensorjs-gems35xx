@@ -63,6 +63,10 @@ function Gems35xxFeeder(parent, id) {
       count: 34
     },
     {
+      address: 37836 + (id - 1) * 2,
+      count: 1
+    },
+    {
       address: 38000 + (id - 1) * 18,
       count: 18
     }
@@ -533,6 +537,14 @@ function Gems35xxFeeder(parent, id) {
       type: 'readUInt32BE',
       converter: undefined
     },
+    demandCurrentPower: {
+      value: undefined,
+      values: [],
+      registered: false,
+      address: 37836 + (id - 1) * 2,
+      type: 'readUInt32BE',
+      converter: undefined
+    },
 
     energy: {
       value: undefined,
@@ -702,6 +714,7 @@ function Gems35xxFeeder(parent, id) {
     setValue(self.items.demandPower);
     setValue(self.items.demandMaxPower);
     setValue(self.items.demandPredictionPower);
+    setValue(self.items.demandCurrentPower);
 
   });
 }

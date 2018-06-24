@@ -52,7 +52,8 @@ Gems35xxFeederSensor.properties = {
     "gems35xxDemandMaxCurrent": ['current'],
     "gems35xxDemandPower": ['electricPower'],
     "gems35xxDemandMaxPower": ['electricPower'],
-    "gems35xxDemandPredictionPower": ['electricPower']
+    "gems35xxDemandPredictionPower": ['electricPower'],
+    "gems35xxDemandCurrentPower": ['electricPower']
   },
   discoverable: false,
   addressable: true,
@@ -82,7 +83,8 @@ Gems35xxFeederSensor.properties = {
     'gems35xxDemandMaxCurrent': false,
     'gems35xxDemandPower': false,
     'gems35xxDemandMaxPower': false,
-    'gems35xxDemandPredictionPower': false
+    'gems35xxDemandPredictionPower': false,
+    'gems35xxDemandCurrentPower': false
   },
   models: [
     'gems35xxFeederType',
@@ -106,7 +108,8 @@ Gems35xxFeederSensor.properties = {
     'gems35xxDemandMaxCurrent',
     'gems35xxDemandPower',
     'gems35xxDemandMaxPower',
-    'gems35xxDemandPredictionPower'
+    'gems35xxDemandPredictionPower',
+    'gems35xxDemandCurrentPower'
   ],
   category: 'sensor'
 };
