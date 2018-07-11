@@ -1,3 +1,5 @@
+'use strict';
+
 var util = require('util');
 var SensorLib = require('../index');
 var Sensor = SensorLib.Sensor;
@@ -15,14 +17,14 @@ function Gems3512FeederSensor(sensorInfo, options) {
   self.port = tokens[1].split(':')[1];
   self.feedId = tokens[1].split(':')[2];
   self.field = tokens[2];
-  self.onChange = false;
 
-  self.parent = Gems3512Feeder.create(self.address, self.port, self.feedId);
+  self.parent = gems3512Feeder.create(self.address, self.port, self.feedId);
 
   if (sensorInfo.model) {
     self.model = sensorInfo.model;
   }
 
+  self.onChange = Gems3512FeederSensor.properties.onChange[self.model];
   self.dataType = Gems3512FeederSensor.properties.dataTypes[self.model][0];
 
   self.parent.registerField(self);
@@ -59,7 +61,7 @@ Gems3512FeederSensor.properties = {
 };
 
 
-Gems3512FeederSensor.prototype._get = function (cb) {
+Gems3512FeederSensor.prototype._get = function() {
   var self = this;
   var result = {
     status: 'on',
@@ -69,7 +71,7 @@ Gems3512FeederSensor.prototype._get = function (cb) {
   logger.debug('Called _get():', self.id);
 
   var values = self.parent.getValues(self);
-  if (values == undefined) {
+  if (!values) {
     result.result = {};
     result.time = {};
 

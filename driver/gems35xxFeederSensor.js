@@ -1,3 +1,5 @@
+'use strict';
+
 var util = require('util');
 var SensorLib = require('../index');
 var Sensor = SensorLib.Sensor;
@@ -22,9 +24,29 @@ function Gems35xxFeederSensor(sensorInfo, options) {
     self.model = sensorInfo.model;
   }
 
+  self.onChange = Gems35xxFeederSensor.properties.dataTypes[self.model];
   self.dataType = Gems35xxFeederSensor.properties.dataTypes[self.model][0];
 
   self.parent.registerField(self);
+  self.parent.on(self.field, function onData(data) {
+    var result = {
+      status: 'on',
+      id: self.id,
+      result: {},
+      time: {}
+    };
+
+    result.result[self.dataType] = data.value;
+    result.time[self.dataType] = self.lastTime = new Date().getTime();
+
+    if (self.onChange) {
+      self.emit('change', result);
+    }
+    else {
+      self.emit('data', result);
+    }
+  });
+
 }
 util.inherits(Gems35xxFeederSensor, Sensor);
 
@@ -42,18 +64,18 @@ Gems35xxFeederSensor.properties = {
     'gems35xxApparentEnergy': ['electricEnergy'],
     'gems35xxPowerFactor': ['powerFactor'],
     'gems35xxLeakageCurrent': ['current'],
-    "gems35xxPFAverage": ['powerFactor'],
-    "gems35xxVoltageUnbalance": ['percent'],
-    "gems35xxCurrentUnbalance": ['percent'],
-    "gems35xxTHDAverage": ['percent'],
-    "gems35xxPowerTHD": ['percent'],
-    "gems35xxPhase": ['number'],
-    "gems35xxDemandCurrent": ['current'],
-    "gems35xxDemandMaxCurrent": ['current'],
-    "gems35xxDemandPower": ['electricPower'],
-    "gems35xxDemandMaxPower": ['electricPower'],
-    "gems35xxDemandPredictionPower": ['electricPower'],
-    "gems35xxDemandCurrentPower": ['electricPower']
+    'gems35xxPFAverage': ['powerFactor'],
+    'gems35xxVoltageUnbalance': ['percent'],
+    'gems35xxCurrentUnbalance': ['percent'],
+    'gems35xxTHDAverage': ['percent'],
+    'gems35xxPowerTHD': ['percent'],
+    'gems35xxPhase': ['number'],
+    'gems35xxDemandCurrent': ['current'],
+    'gems35xxDemandMaxCurrent': ['current'],
+    'gems35xxDemandPower': ['electricPower'],
+    'gems35xxDemandMaxPower': ['electricPower'],
+    'gems35xxDemandPredictionPower': ['electricPower'],
+    'gems35xxDemandCurrentPower': ['electricPower']
   },
   discoverable: false,
   addressable: true,
@@ -84,7 +106,7 @@ Gems35xxFeederSensor.properties = {
     'gems35xxDemandPower': false,
     'gems35xxDemandMaxPower': false,
     'gems35xxDemandPredictionPower': false,
-    'gems35xxDemandCurrentPower': false
+    'gems35xxDemandCurrentPower': true
   },
   models: [
     'gems35xxFeederType',
@@ -115,7 +137,7 @@ Gems35xxFeederSensor.properties = {
 };
 
 
-Gems35xxFeederSensor.prototype._get = function (cb) {
+Gems35xxFeederSensor.prototype._get = function () {
   var self = this;
   var result = {
     status: 'on',
@@ -125,7 +147,7 @@ Gems35xxFeederSensor.prototype._get = function (cb) {
   logger.debug('Called _get():', self.id);
 
   var values = self.parent.getValues(self);
-  if (values == undefined) {
+  if (!values) {
     result.result = {};
     result.time = {};
 

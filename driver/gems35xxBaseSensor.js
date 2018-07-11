@@ -1,3 +1,5 @@
+'use strict';
+
 var util = require('util');
 var SensorLib = require('../index');
 var Sensor = SensorLib.Sensor;
@@ -52,7 +54,7 @@ Gems35xxBaseSensor.properties = {
 };
 
 
-Gems35xxBaseSensor.prototype._get = function (cb) {
+Gems35xxBaseSensor.prototype._get = function () {
   var self = this;
   var result = {
     status: 'on',

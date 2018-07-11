@@ -1,3 +1,5 @@
+'use strict';
+
 var logger = require('log4js').getLogger('Sensor');
 
 function initDrivers() {
@@ -89,7 +91,8 @@ module.exports = {
       'gems35xxDemandMaxCurrent',
       'gems35xxDemandPower',
       'gems35xxDemandMaxPower',
-      'gems35xxDemandPredictionPower'
+      'gems35xxDemandPredictionPower',
+      'gems35xxDemandCurrentPower'
     ],
     gems3512FeederSensor: [
       'gems3512FeederType',

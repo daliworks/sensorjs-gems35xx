@@ -1,8 +1,6 @@
-var net = require('net');
+'use strict';
+
 var util = require('util');
-var _ = require('lodash');
-var async = require('async');
-var modbus = require('modbus-tcp');
 var EventEmitter = require('events').EventEmitter;
 var Gems35xx = require('./gems35xx');
 var logger = require('./index').Sensor.getLogger('Sensor');
@@ -188,7 +186,7 @@ function Gems35xxBase(parent) {
         registers[item.address - startAddress].copy(buffer, 0);
         registers[item.address - startAddress + 1].copy(buffer, 2);
 
-        if (item.converter != undefined) {
+        if (item.converter) {
           item.value = item.converter(buffer[item.type](0) || 0);
         } else {
           item.value = (buffer[item.type](0) || 0);
@@ -220,7 +218,7 @@ function Gems35xxBase(parent) {
   self.on('demandReset', function (cb) {
     var field = 'demandReset';
 
-    if (self.actuators[field] != undefined) {
+    if (self.actuators[field]) {
       var registers = [];
       logger.trace('Request Command : ', field);
 
@@ -238,7 +236,7 @@ function Gems35xxBaseCreate(address, port) {
   var gems35xx = Gems35xx.create(address, port);
 
   var gems35xxBase = gems35xx.getChild(0);
-  if (gems35xxBase == undefined) {
+  if (!gems35xxBase) {
     gems35xxBase = new Gems35xxBase(gems35xx);
     logger.trace('GEMS35xx is created.');
     gems35xx.addChild(gems35xxBase);
@@ -250,10 +248,10 @@ function Gems35xxBaseCreate(address, port) {
 Gems35xxBase.prototype.register = function (endpoint) {
   var self = this;
 
-  if (self.sensors[endpoint.field] != undefined) {
+  if (self.sensors[endpoint.field]) {
     self.sensors[endpoint.field].registered = true;
     self.parent.run();
-  } else if (self.actuators[endpoint.field] != undefined) {
+  } else if (self.actuators[endpoint.field]) {
     self.actuators[endpoint.field].registered = true;
   } else {
     logger.error('Undefined base field tried to register : ', endpoint.field);
@@ -263,9 +261,9 @@ Gems35xxBase.prototype.register = function (endpoint) {
 Gems35xxBase.prototype.getValue = function (endpoint) {
   var self = this;
 
-  if (self.sensors[endpoint.field] != undefined) {
+  if (self.sensors[endpoint.field]) {
     return self.sensors[endpoint.field].value;
-  } else if (self.actuators[endpoint.field] != undefined) {
+  } else if (self.actuators[endpoint.field]) {
     return self.actuators[endpoint.field].value;
   }
 

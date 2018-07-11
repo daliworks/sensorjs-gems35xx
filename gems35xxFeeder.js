@@ -1,8 +1,7 @@
-var net = require('net');
+'use strict';
+
 var util = require('util');
 var _ = require('lodash');
-var async = require('async');
-var modbus = require('modbus-tcp');
 var EventEmitter = require('events').EventEmitter;
 var Gems35xx = require('./gems35xx');
 var logger = require('./index').Sensor.getLogger('Sensor');
@@ -620,6 +619,10 @@ function Gems35xxFeeder(parent, id) {
     }
   };
 
+  _.each(self.items, function(item, name) {
+    item.name = name;
+  });
+
   self.on('done', function (startAddress, count, registers) {
     function setValue(item) {
       if (startAddress <= item.address && item.address < startAddress + count * 2) {
@@ -628,7 +631,7 @@ function Gems35xxFeeder(parent, id) {
         registers[item.address - startAddress].copy(buffer, 0);
         registers[item.address - startAddress + 1].copy(buffer, 2);
 
-        if (item.converter != undefined) {
+        if (item.converter) {
           item.value = item.converter(buffer[item.type](0) || 0);
         } else {
           item.value = (buffer[item.type](0) || 0);
@@ -642,6 +645,9 @@ function Gems35xxFeeder(parent, id) {
           value: item.value,
           time: _.now()
         });
+
+        var data = {value: item.value};
+        self.emit(item.name, data);
       }
     }
 
@@ -654,8 +660,6 @@ function Gems35xxFeeder(parent, id) {
     setValue(self.items.pFAverage);
     setValue(self.items.currentUnbalance);
     setValue(self.items.tHDAverage);
-  //setValue(self.items.leakageCurrentIGR);
-  //setValue(self.items.leakageCurrentIGC);
     setValue(self.items.l1Voltage);
     setValue(self.items.l1Current);
     setValue(self.items.l1Power);
@@ -725,7 +729,7 @@ function Gems35xxFeederCreate(address, port, id) {
   var gems35xx = Gems35xx.create(address, port);
 
   var gems35xxFeeder = gems35xx.getChild(id);
-  if (gems35xxFeeder == undefined) {
+  if (!gems35xxFeeder) {
     gems35xxFeeder = new Gems35xxFeeder(gems35xx, id);
     gems35xx.addChild(gems35xxFeeder);
   }
@@ -736,8 +740,9 @@ function Gems35xxFeederCreate(address, port, id) {
 Gems35xxFeeder.prototype.registerField = function (sensor) {
   var self = this;
 
-  if (self.items[sensor.field] != undefined) {
+  if (self.items[sensor.field]) {
     self.items[sensor.field].registered = true;
+    self.items[sensor.field].sensor = sensor;
     self.parent.run();
   } else {
     logger.error('Undefined feeder field tried to register : ', sensor.field);
@@ -748,7 +753,7 @@ Gems35xxFeeder.prototype.registerField = function (sensor) {
 Gems35xxFeeder.prototype.getValue = function (sensor) {
   var self = this;
 
-  if (self.items[sensor.field] != undefined) {
+  if (self.items[sensor.field]) {
     return self.items[sensor.field].value;
   }
 
@@ -760,7 +765,7 @@ Gems35xxFeeder.prototype.getValues = function (sensor) {
   var self = this;
   var values = [];
 
-  if (self.items[sensor.field] != undefined) {
+  if (self.items[sensor.field]) {
     values = self.items[sensor.field].values;
     self.items[sensor.field].values = [];
     return values;

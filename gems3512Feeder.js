@@ -1,40 +1,13 @@
-var net = require('net');
+'use strict';
+
 var util = require('util');
 var _ = require('lodash');
-var async = require('async');
-var modbus = require('modbus-tcp');
 var EventEmitter = require('events').EventEmitter;
 var Gems35xx = require('./gems35xx');
 var logger = require('./index').Sensor.getLogger('Sensor');
 
-
-function FeederType(value) {
-  switch (value) {
-    case 0:
-      return 'Not Used';
-    case 1:
-      return '1P2W_R(1P3W_RN)';
-    case 2:
-      return '1P2W_S(1P3W_RS)';
-    case 3:
-      return '1P2W_T(1P3W_SN)';
-    case 4:
-      return '3P2W_2CT';
-    case 5:
-      return '3P4W';
-    case 6:
-      return 'ZCT';
-    case 7:
-      return '3P3W_3CT';
-    case 8:
-      return '1P3W_2CT';
-  }
-
-  return 'Unknown';
-}
-
 function scaleConverter(value, scale) {
-  if (scale != undefined) {
+  if (scale) {
     return value * scale;
   }
 
@@ -42,7 +15,7 @@ function scaleConverter(value, scale) {
 }
 
 function scaleConverter3(value, scale) {
-  if (scale != undefined) {
+  if (scale) {
     value = value * scale;
   }
 
@@ -149,9 +122,9 @@ function Gems3512Feeder(parent, id) {
         registers[item.address - startAddress].copy(buffer, 0);
         registers[item.address - startAddress + 1].copy(buffer, 2);
 
-        if (item.converter != undefined) {
+        if (item.converter) {
           value = item.converter(buffer[item.type](0) || 0);
-        } else if (item.scaleConversion != undefined) {
+        } else if (item.scaleConversion) {
           value = item.scaleConversion.converter((buffer[item.type](0) || 0), item.scaleConversion.scale);
         } else {
           value = (buffer[item.type](0) || 0);
@@ -162,7 +135,7 @@ function Gems3512Feeder(parent, id) {
           id: item.sensor.id
         };
 
-        if (item.event == false) {
+        if (!item.event) {
           result.result = {};
           result.time = {};
 
@@ -181,8 +154,8 @@ function Gems3512Feeder(parent, id) {
             time: time
           });
 
-          if (item.sensor != undefined) {
-            if ((item.value == undefined) || (Math.abs(item.value - value) >= 1) || (item.values.length >= 30)) {
+          if (item.sensor) {
+            if ((!item.value) || (Math.abs(item.value - value) >= 1) || (item.values.length >= 30)) {
               result.values = item.values;
               item.sensor.emit('change_array', result);
               item.values = [];
@@ -209,7 +182,7 @@ function Gems3512FeederCreate(address, port, id) {
   var gems35xx = Gems35xx.create(address, port);
 
   var gems3512Feeder = gems35xx.getChild(id);
-  if (gems3512Feeder == undefined) {
+  if (!gems3512Feeder) {
     gems3512Feeder = new Gems3512Feeder(gems35xx, id);
     gems35xx.addChild(gems3512Feeder);
   }
@@ -220,7 +193,7 @@ function Gems3512FeederCreate(address, port, id) {
 Gems3512Feeder.prototype.registerField = function (sensor) {
   var self = this;
 
-  if (self.items[sensor.field] != undefined) {
+  if (self.items[sensor.field]) {
     self.items[sensor.field].sensor = sensor;
     self.items[sensor.field].registered = true;
     self.parent.run();
@@ -233,7 +206,7 @@ Gems3512Feeder.prototype.registerField = function (sensor) {
 Gems3512Feeder.prototype.getValue = function (sensor) {
   var self = this;
 
-  if (self.items[sensor.field] != undefined) {
+  if (self.items[sensor.field]) {
     return self.items[sensor.field].value;
   }
 
@@ -245,7 +218,7 @@ Gems3512Feeder.prototype.getValues = function (sensor) {
   var self = this;
   var values = [];
 
-  if (self.items[sensor.field] != undefined) {
+  if (self.items[sensor.field]) {
     values = self.items[sensor.field].values;
     self.items[sensor.field].values = [];
     return values;

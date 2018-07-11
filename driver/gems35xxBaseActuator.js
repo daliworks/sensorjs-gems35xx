@@ -1,4 +1,5 @@
-var _ = require('lodash');
+'use strict';
+
 var util = require('util');
 var SensorLib = require('../index');
 var gems35xxBase = require('../gems35xxBase');
@@ -53,24 +54,6 @@ Gems35xxBaseActuator.properties = {
 
 util.inherits(Gems35xxBaseActuator, Actuator);
 
-function sendCommand(actuator, cmd, options, cb) {
-  if (_.isFunction(options)) {
-    cb = options;
-    options = null;
-  }
-
-  logger.trace('sendCommand : ', actuator.deviceAddress, actuator.sequence, cmd, options);
-
-  try {
-    var settings = JSON.parse(options.settings);
-    logger.trace('Settings : ', settings);
-
-    cb(undefined, 'Success!');
-  } catch (err) {
-    cb('Invalid JSON format', err);
-  }
-}
-
 Gems35xxBaseActuator.prototype._set = function _set(cmd, options, cb) {
   var self = this;
 
@@ -84,7 +67,7 @@ Gems35xxBaseActuator.prototype._set = function _set(cmd, options, cb) {
   }
 };
 
-Gems35xxBaseActuator.prototype._get = function _get(cb) {
+Gems35xxBaseActuator.prototype._get = function() {
   var self = this;
   var result = {
     status: 'on',
