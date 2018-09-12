@@ -49,10 +49,8 @@ function Gems3512Feeder(parent, id) {
       registered: false,
       address: 39012 + (id - 1) * 18 + 2,
       type: 'readUInt32BE',
-      scaleConversion: {
-        converter: scaleConverter,
-        scale: 0.01
-      }
+      converter: scaleConverter,
+      scale: 0.01
     },
     leakageCurrentOver: {
       value: undefined,
@@ -63,10 +61,8 @@ function Gems3512Feeder(parent, id) {
       registered: false,
       address: 39012 + (id - 1) * 18 + 2,
       type: 'readUInt32BE',
-      scaleConversion: {
-        converter: scaleConverter,
-        scale: 0.01
-      }
+      converter: scaleConverter,
+      scale: 0.01
     },
     leakageCurrentAlarm: {
       value: undefined,
@@ -77,10 +73,8 @@ function Gems3512Feeder(parent, id) {
       registered: false,
       address: 39012 + (id - 1) * 18 + 2,
       type: 'readUInt32BE',
-      scaleConversion: {
-        converter: scaleConverter3,
-        scale: 0.01
-      }
+      converter: scaleConverter3,
+      scale: 0.01
     },
     leakageCurrentIGR: {
       value: undefined,
@@ -91,10 +85,8 @@ function Gems3512Feeder(parent, id) {
       registered: false,
       address: 39012 + (id - 1) * 18 + 4,
       type: 'readInt32BE',
-      scaleConversion: {
-        converter: scaleConverter,
-        scale: 0.1
-      }
+      converter: scaleConverter,
+      scale: 0.1
     },
     leakageCurrentIGC: {
       value: undefined,
@@ -105,66 +97,47 @@ function Gems3512Feeder(parent, id) {
       registered: false,
       address: 39012 + (id - 1) * 18 + 6,
       type: 'readInt32BE',
-      scaleConversion: {
-        converter: scaleConverter,
-        scale: 0.1
-      }
+      converter: scaleConverter,
+      scale: 0.1
     }
   };
 
+  _.each(self.items, function(item, name) {
+    item.name = name;
+  });
+
   self.on('done', function (startAddress, count, registers) {
     function setValue(item) {
-      if (startAddress <= item.address && item.address < startAddress + count * 2) {
-        var value;
-        var time = _.now();
-        var buffer = new Buffer(4);
-
-        registers[item.address - startAddress].copy(buffer, 0);
-        registers[item.address - startAddress + 1].copy(buffer, 2);
-
-        if (item.converter) {
-          value = item.converter(buffer[item.type](0) || 0);
-        } else if (item.scaleConversion) {
-          value = item.scaleConversion.converter((buffer[item.type](0) || 0), item.scaleConversion.scale);
-        } else {
-          value = (buffer[item.type](0) || 0);
-        }
-
-        var result = {
-          status: 'on',
-          id: item.sensor.id
-        };
-
-        if (!item.event) {
-          result.result = {};
-          result.time = {};
-
-          result.result[item.sensor.dataType] = value;
-          result.time[item.sensor.dataType] = time;
-
-          item.sensor.emit('data', result);
-        } else {
-          result.values = [];
-
+      if (item.sensor) {
+        if (startAddress <= item.address && item.address < startAddress + count * 2) {
+          var buffer = new Buffer(4);
+  
+          registers[item.address - startAddress].copy(buffer, 0);
+          registers[item.address - startAddress + 1].copy(buffer, 2);
+  
+          if (item.converter) {
+            item.value = item.converter((buffer[item.type](0) || 0), item.scale);
+          } else {
+            item.value = (buffer[item.type](0) || 0);
+          }
+          logger.trace('value :', buffer[item.type](0), item.value);
+  
           if (item.values.length > 100) {
             item.values.shift();
           }
+  
           item.values.push({
-            value: value,
-            time: time
+            value: item.value,
+            time: _.now()
           });
-
-          if (item.sensor) {
-            if ((!item.value) || (Math.abs(item.value - value) >= 1) || (item.values.length >= 30)) {
-              result.values = item.values;
-              item.sensor.emit('change_array', result);
-              item.values = [];
-            }
-          }
+  
+          var data = {value: item.value};
+          logger.trace('self.emit(', item.name, JSON.stringify(data), ')');
+          self.emit(item.name, data);
         }
-
-        item.value = value;
-        item.time = time;
+        else {
+          logger.error('Out of range : ', startAddress, item.address, startAddress + count * 2);
+        }
       }
     }
 
@@ -196,7 +169,7 @@ Gems3512Feeder.prototype.registerField = function (sensor) {
   if (self.items[sensor.field]) {
     self.items[sensor.field].sensor = sensor;
     self.items[sensor.field].registered = true;
-    self.parent.run();
+    self.parent.start();
   } else {
     logger.error('Undefined feeder field tried to register : ', sensor.field);
     logger.error(self.items);

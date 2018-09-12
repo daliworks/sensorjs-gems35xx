@@ -28,6 +28,25 @@ function Gems3512FeederSensor(sensorInfo, options) {
   self.dataType = Gems3512FeederSensor.properties.dataTypes[self.model][0];
 
   self.parent.registerField(self);
+
+  self.parent.on(self.field, function onData(data) {
+    var result = {
+      status: 'on',
+      id: self.id,
+      result: {},
+      time: {}
+    };
+
+    result.result[self.dataType] = data.value;
+    result.time[self.dataType] = self.lastTime = new Date().getTime();
+
+    if (self.onChange) {
+      self.emit('change', result);
+    }
+    else {
+      self.emit('data', result);
+    }
+  });
 }
 util.inherits(Gems3512FeederSensor, Sensor);
 
