@@ -186,7 +186,7 @@ Gems35xx.prototype.connect = function() {
       self.emit('connect');
     });
   }
-}
+};
 
 Gems35xx.prototype.addChild = function (child) {
   var self = this;
@@ -209,7 +209,6 @@ Gems35xx.prototype.getChild = function (id) {
 
 Gems35xx.prototype.start = function () {
   var self = this;
-  var time = new Date().getTime();
 
   if (!self.intervalHandler) {
     self.intervalHandler = setInterval(function () {
