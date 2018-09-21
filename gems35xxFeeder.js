@@ -743,7 +743,7 @@ Gems35xxFeeder.prototype.registerField = function (sensor) {
   if (self.items[sensor.field]) {
     self.items[sensor.field].registered = true;
     self.items[sensor.field].sensor = sensor;
-    self.parent.run();
+    self.parent.start();
   } else {
     logger.error('Undefined feeder field tried to register : ', sensor.field);
     logger.error(self.items);
