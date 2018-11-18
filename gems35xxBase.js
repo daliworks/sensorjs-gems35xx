@@ -250,7 +250,7 @@ Gems35xxBase.prototype.register = function (endpoint) {
 
   if (self.sensors[endpoint.field]) {
     self.sensors[endpoint.field].registered = true;
-    self.parent.run();
+    self.parent.start();
   } else if (self.actuators[endpoint.field]) {
     self.actuators[endpoint.field].registered = true;
   } else {
